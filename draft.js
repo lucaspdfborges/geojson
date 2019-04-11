@@ -1,4 +1,4 @@
-const mzod = require('./macrozona_od.json');
+const mzod = require('./macrozona_do.json');
 const fs = require('fs');
 const zippedOD = {};
 console.log(mzod);
@@ -38,7 +38,6 @@ for(mzOrigem in mzod){
                         };
 }
 
-
 console.log('Maximo TC_TOTAL',tc_total_max);
 console.log('Maximo TI_TOTAL',ti_total_max);
 console.log('Maximo TC_PPM',tc_ppm_max);
@@ -46,11 +45,11 @@ console.log('Maximo TI_PPM',ti_ppm_max);
 
 var json = JSON.stringify(zippedOD);
 
-/*
-fs.writeFile("./test.json",json, function(err) {
+
+fs.writeFile("./destinyOD.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
 
     console.log("The file was saved!");
-});*/
+});
