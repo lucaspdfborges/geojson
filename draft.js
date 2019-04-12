@@ -1,4 +1,27 @@
 const mzod = require('./macrozona_do.json');
+const ct = require('./mczona_centroid.json');
+const fs = require('fs');
+
+const ctG = ct.objects.mczona_centroid.geometries;
+
+var mzCentroid = {};
+
+ctG.forEach(function(item){
+  mzCentroid[item.properties.MACROZONA] = item.coordinates;
+});
+
+var json = JSON.stringify(mzCentroid);
+
+
+fs.writeFile("./mzCentroid.json",json, function(err) {
+    if(err) {
+        return console.log(err);
+    }
+
+    console.log("The file was saved!");
+});
+
+/*
 const fs = require('fs');
 const zippedOD = {};
 console.log(mzod);
@@ -29,7 +52,6 @@ for(mzOrigem in mzod){
   tc_ppm_max = (tc_ppm_sum > tc_ppm_max ? tc_ppm_sum : tc_ppm_max);
   ti_ppm_max = (ti_ppm_sum > ti_ppm_max ? ti_ppm_sum : ti_ppm_max);
 
-
   zippedOD[mzOrigem] = {
                           "TC_total": tc_total_sum,
                           "TI_total": ti_total_sum,
@@ -43,13 +65,5 @@ console.log('Maximo TI_TOTAL',ti_total_max);
 console.log('Maximo TC_PPM',tc_ppm_max);
 console.log('Maximo TI_PPM',ti_ppm_max);
 
-var json = JSON.stringify(zippedOD);
 
-
-fs.writeFile("./destinyOD.json",json, function(err) {
-    if(err) {
-        return console.log(err);
-    }
-
-    console.log("The file was saved!");
-});
+*/
