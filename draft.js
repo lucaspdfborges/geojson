@@ -1,19 +1,43 @@
-const mzod = require('./macrozona_do.json');
-const ct = require('./mczona_centroid.json');
+const mzod = require('./macrozona_od.json');
+const mzcentroid = require('./mzCentroid.json');
 const fs = require('fs');
 
-const ctG = ct.objects.mczona_centroid.geometries;
+for(mzOrigem in mzod){
 
-var mzCentroid = {};
+  var tc_total_max = 0;
+  var ti_total_max = 0;
+  var tc_ppm_max = 0;
+  var ti_ppm_max = 0;
 
-ctG.forEach(function(item){
-  mzCentroid[item.properties.MACROZONA] = item.coordinates;
-});
+  var mainObj =  mzod[mzOrigem];
 
-var json = JSON.stringify(mzCentroid);
+  for(mzDestino in mzod[mzOrigem]){
+
+    var obj = mainObj[mzDestino];
+
+    tc_total = obj.TC_total;
+    ti_total = obj.TI_total;
+    tc_ppm = obj.TC_PPM;
+    ti_ppm = obj.TI_PPM;
+
+    tc_total_max = (tc_total > tc_total_max ? tc_total : tc_total_max);
+    ti_total_max = (ti_total > ti_total_max ? ti_total : ti_total_max);
+    tc_ppm_max = (tc_ppm > tc_ppm_max ? tc_ppm : tc_ppm_max);
+    ti_ppm_max = (ti_ppm > ti_ppm_max ? ti_ppm : ti_ppm_max);
+
+    obj["coordinates"] = mzcentroid[mzDestino];
+  }
+
+    mainObj["TC_total_max"] = tc_total_max;
+    mainObj["TI_total_max"] = ti_total_max;
+    mainObj["TC_PPM_max"] = tc_ppm_max;
+    mainObj["TI_PPM_max"] = tc_ppm_max;
+
+}
+var json = JSON.stringify(mzod);
 
 
-fs.writeFile("./mzCentroid.json",json, function(err) {
+fs.writeFile("./mz_coord_max.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
