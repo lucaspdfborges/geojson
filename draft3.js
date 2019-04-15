@@ -1,4 +1,6 @@
 const mz = require('./mz_coord_max.json');
+const mzCoord = require('./mzCentroid.json');
+
 const fs = require('fs');
 
 let finalArray = {};
@@ -11,20 +13,19 @@ for(origin in mz){
   var mainObj = mz[origin];
 
   var maxObj = {
-    "destiny":"max",
-    "TC_total":mainObj.TC_total_max,
-    "TI_total":mainObj.TI_total_max,
-    "TC_PPM":mainObj.TC_PPM_max,
-    "TI_PPM":mainObj.TI_PPM_max
+    "destiny":"self",
+    "TC_total_max":mainObj.TC_total_max,
+    "TI_total_max":mainObj.TI_total_max,
+    "TC_PPM_max":mainObj.TC_PPM_max,
+    "TI_PPM_max":mainObj.TI_PPM_max,
+    "coordinates": mzCoord.coordinates
   }
 
   newArray.push(maxObj);
 
   for(destiny in mainObj ){
 
-    console.log(destiny);
     var obj = mainObj[destiny];
-    console.log(obj);
 
     var newObj = {
       "destiny":destiny,
@@ -32,7 +33,7 @@ for(origin in mz){
       "TI_total":obj.TI_total,
       "TC_PPM":obj.TC_PPM,
       "TI_PPM":obj.TI_PPM,
-      "coordinates":obj.coordinates
+      "coordinates":mzCoord[destiny]
     }
 
     if(parseInt(destiny)>0){
@@ -47,7 +48,7 @@ for(origin in mz){
 var json = JSON.stringify(finalArray);
 
 
-fs.writeFile("./mz_array_2.json",json, function(err) {
+fs.writeFile("./mzArray2.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
