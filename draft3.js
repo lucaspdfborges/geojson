@@ -1,4 +1,4 @@
-const mz = require('./mz_coord_max.json');
+const mz = require('./mz_coord_max_do.json');
 const mzCoord = require('./mzCentroid.json');
 
 const fs = require('fs');
@@ -48,7 +48,7 @@ for(origin in mz){
 var json = JSON.stringify(finalArray);
 
 
-fs.writeFile("./mz_array.json",json, function(err) {
+fs.writeFile("./mz_array_do.json",json, function(err) {
     if(err) {
         return console.log(err);
     }

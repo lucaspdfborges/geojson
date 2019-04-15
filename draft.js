@@ -1,4 +1,4 @@
-const mzod = require('./macrozona_od.json');
+const mzod = require('./macrozona_do.json');
 const mzcentroid = require('./mzCentroid.json');
 const fs = require('fs');
 
@@ -37,7 +37,7 @@ for(mzOrigem in mzod){
 var json = JSON.stringify(mzod);
 
 
-fs.writeFile("./mz_coord_max.json",json, function(err) {
+fs.writeFile("./mz_coord_max_do.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
