@@ -18,7 +18,7 @@ for(origin in mz){
     "TI_total_max":mainObj.TI_total_max,
     "TC_PPM_max":mainObj.TC_PPM_max,
     "TI_PPM_max":mainObj.TI_PPM_max,
-    "coordinates": mzCoord.coordinates
+    "coordinates": mzCoord[origin]
   }
 
   newArray.push(maxObj);
