@@ -1,7 +1,7 @@
 const mz = require('./mz_coord_max.json');
 const fs = require('fs');
 
-let finalArray = [];
+let finalArray = {};
 
 for(origin in mz){
 
@@ -41,19 +41,13 @@ for(origin in mz){
 
   }
 
-  var finalObj ={
-    "origin":origin,
-    "info":newArray
-  };
-
-
-  finalArray.push(finalObj);
+  finalArray[origin]=newArray;
 }
 
 var json = JSON.stringify(finalArray);
 
 
-fs.writeFile("./mz_array.json",json, function(err) {
+fs.writeFile("./mz_array_2.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
