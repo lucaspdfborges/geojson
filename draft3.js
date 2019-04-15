@@ -48,7 +48,7 @@ for(origin in mz){
 var json = JSON.stringify(finalArray);
 
 
-fs.writeFile("./macrozona_array.json",json, function(err) {
+fs.writeFile("./mz_array.json",json, function(err) {
     if(err) {
         return console.log(err);
     }

@@ -31,7 +31,7 @@ for(mzOrigem in mzod){
     mainObj["TC_total_max"] = tc_total_max;
     mainObj["TI_total_max"] = ti_total_max;
     mainObj["TC_PPM_max"] = tc_ppm_max;
-    mainObj["TI_PPM_max"] = tc_ppm_max;
+    mainObj["TI_PPM_max"] = ti_ppm_max;
 
 }
 var json = JSON.stringify(mzod);
