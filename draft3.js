@@ -31,7 +31,8 @@ for(origin in mz){
       "TC_total":obj.TC_total,
       "TI_total":obj.TI_total,
       "TC_PPM":obj.TC_PPM,
-      "TI_PPM":obj.TI_PPM
+      "TI_PPM":obj.TI_PPM,
+      "coordiantes":obj.coordinates
     }
 
     newArray.push(newObj);
