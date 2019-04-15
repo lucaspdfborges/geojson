@@ -32,10 +32,13 @@ for(origin in mz){
       "TI_total":obj.TI_total,
       "TC_PPM":obj.TC_PPM,
       "TI_PPM":obj.TI_PPM,
-      "coordiantes":obj.coordinates
+      "coordinates":obj.coordinates
     }
 
-    newArray.push(newObj);
+    if(parseInt(destiny)>0){
+      newArray.push(newObj);
+    }
+
   }
 
   var finalObj ={
