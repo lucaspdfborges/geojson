@@ -12,6 +12,7 @@ for(mczona in mczonas){
 
   localObj["RA_NOME"] =   mczonas[mczona].properties.RA_NOME;
   localObj["ID"] = mczonas[mczona].properties.ID;
+  localObj["MACROZONA"] = mczonas[mczona].properties.MACROZONA;
   localObj["center"] = [(mczonas[mczona].bbox[0]+mczonas[mczona].bbox[2])/2,(mczonas[mczona].bbox[1]+mczonas[mczona].bbox[3])/2];
   localObj["bbox"] = mczonas[mczona].bbox;
 
@@ -22,7 +23,7 @@ myObj["data"] = myArray;
 
 var json = JSON.stringify(myObj);
 
-fs.writeFile("./NOME_ID_CENTER.json",json, function(err) {
+fs.writeFile("./NOME_ID_MCZ_CENTER.json",json, function(err) {
     if(err) {
         return console.log(err);
     }
