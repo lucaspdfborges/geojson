@@ -7,15 +7,16 @@ for(mzOrigem in mzod){
 
   for(mzDestino in mzod[mzOrigem]){
 
-      if(!zippedDO[mzDestino]){
-        zippedDO[mzDestino] = {};
-      }
-        zippedDO[mzDestino][mzOrigem]= {
-                                "TC_total": mzod[mzOrigem][mzDestino].TC_total,
-                                "TI_total": mzod[mzOrigem][mzDestino].TI_total,
-                                "TC_PPM": mzod[mzOrigem][mzDestino].TC_PPM,
-                                "TI_PPM": mzod[mzOrigem][mzDestino].TI_PPM
-                              };
+    if(!zippedDO[mzDestino]){
+      zippedDO[mzDestino] = {};
+    }
+      zippedDO[mzDestino][mzOrigem]= {
+                              "TC_total": mzod[mzOrigem][mzDestino].TC_total,
+                              "TI_total": mzod[mzOrigem][mzDestino].TI_total,
+                              "TC_PPM": mzod[mzOrigem][mzDestino].TC_PPM,
+                              "TI_PPM": mzod[mzOrigem][mzDestino].TI_PPM
+                            };
+}
   }
 }
 
