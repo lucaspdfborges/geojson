@@ -15,27 +15,27 @@ for(origem in mz){
   for(destino in mz[origem]){
 
     tc_total.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TC_total]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TC_total]
     );
 
     tci_total.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TCI_total]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TCI_total]
     );
 
     ti_total.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TI_total]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TI_total]
     );
 
     tc_ppm.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TC_PPM]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TC_PPM]
     );
 
     tci_ppm.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TCI_PPM]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TCI_PPM]
     );
 
     ti_ppm.push([
-      {"origin": origem, "destiny": mz[origem][destino].destiny}, mz[origem][destino].TI_PPM]
+      {"origin": origem, "originCoord": mz[origem][0].coordinates, "destiny": mz[origem][destino].destiny,  "destinyCoord": mz[origem][destino].coordinates}, mz[origem][destino].TI_PPM]
     );
 
   }
