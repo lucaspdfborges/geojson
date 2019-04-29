@@ -66,12 +66,12 @@ ti_ppm.sort(function(a, b) {
 });
 
 finalObj = {
-  "TC_total": tc_total,
-  "TCI_total": tci_total,
-  "TI_total": ti_total,
-  "TC_ppm": tc_ppm,
-  "TCI_ppm": tci_ppm,
-  "TI_ppm": ti_ppm
+  "TC_total": tc_total.splice(0,100),
+  "TCI_total": tci_total.splice(0,100),
+  "TI_total": ti_total.splice(0,100),
+  "TC_ppm": tc_ppm.splice(0,100),
+  "TCI_ppm": tci_ppm.splice(0,100),
+  "TI_ppm": ti_ppm.splice(0,100)
 };
 
 console.log(finalObj);
