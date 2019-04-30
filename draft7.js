@@ -17,29 +17,32 @@ for(origem in mz){
   for(destino in mz[origem]){
 
     var dest = mz[origem][destino].destiny;
+    console.log(origem);
+    console.log(area[origem]);
+    var ar = parseInt(area[origem]) || 1000000000;
 
     tc_total.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_total / area[origem]]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, parseInt(mz[origem][destino].TC_total) / ar ]
     );
 
     tci_total.push([
-      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_total  / area[origem]]
+      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, parseInt( mz[origem][destino].TCI_total ) / ar ]
     );
 
     ti_total.push([
-      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_total  / area[origem]]
+      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]},  parseInt(mz[origem][destino].TI_total) / ar]
     );
 
     tc_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny":dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_PPM  / area[origem]]
+      {"origin": origem, "originCoord": ct[origem], "destiny":dest,  "destinyCoord": ct[dest]}, parseInt( mz[origem][destino].TC_PPM ) / ar ]
     );
 
     tci_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_PPM  / area[origem]]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]},  parseInt(mz[origem][destino].TCI_PPM  )/ar ]
     );
 
     ti_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_PPM / area[origem] ]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, parseInt( mz[origem][destino].TI_PPM )/ ar ]
     );
 
   }
