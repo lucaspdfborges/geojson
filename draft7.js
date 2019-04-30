@@ -68,13 +68,15 @@ ti_ppm.sort(function(a, b) {
     return b[1] - a[1];
 });
 
+var numValues = 500;
+
 finalObj = {
-  "TC_total": tc_total.splice(0,200),
-  "TCI_total": tci_total.splice(0,200),
-  "TI_total": ti_total.splice(0,200),
-  "TC_ppm": tc_ppm.splice(0,200),
-  "TCI_ppm": tci_ppm.splice(0,200),
-  "TI_ppm": ti_ppm.splice(0,200)
+  "TC_total": tc_total.splice(0,numValues),
+  "TCI_total": tci_total.splice(0,numValues),
+  "TI_total": ti_total.splice(0,numValues),
+  "TC_ppm": tc_ppm.splice(0,numValues),
+  "TCI_ppm": tci_ppm.splice(0,numValues),
+  "TI_ppm": ti_ppm.splice(0,numValues)
 };
 
 console.log(finalObj);
