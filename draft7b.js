@@ -1,4 +1,5 @@
 const mz = require('./pre_flow_do.json');
+const ct = require('./mzCentroid.json');
 const fs = require('fs');
 
 var tc_total = [];
@@ -14,28 +15,30 @@ var finalObj = {};
 for(destino in mz){
   for(origem in mz[destino]){
 
+      var orig = mz[destino][origem].origin;
+
     tc_total.push([
-      {"origin": mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TC_total]
+      {"origin": orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord": ct[destino]}, mz[destino][origem].TC_total]
     );
 
     tci_total.push([
-      {"origin":  mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TCI_total]
+      {"origin": orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord":ct[destino]}, mz[destino][origem].TCI_total]
     );
 
     ti_total.push([
-      {"origin":  mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TI_total]
+      {"origin":  orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord":ct[destino]}, mz[destino][origem].TI_total]
     );
 
     tc_ppm.push([
-      {"origin":  mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TC_PPM]
+      {"origin":  orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord": ct[destino]}, mz[destino][origem].TC_PPM]
     );
 
     tci_ppm.push([
-      {"origin":  mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TCI_PPM]
+      {"origin":  orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord": ct[destino]}, mz[destino][origem].TCI_PPM]
     );
 
     ti_ppm.push([
-      {"origin":  mz[destino][origem].origin, "originCoord": mz[destino][origem].coordinates, "destiny": destino,  "destinyCoord": mz[destino][0].coordinates}, mz[destino][origem].TI_PPM]
+      {"origin":  orig, "originCoord": ct[orig], "destiny": destino,  "destinyCoord": ct[destino]}, mz[destino][origem].TI_PPM]
     );
 
   }
