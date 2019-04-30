@@ -1,5 +1,6 @@
 const mz = require('./pre_flow_od.json');
 const ct = require('./mzCentroid.json');
+const area = require('./mczona_area.json');
 const fs = require('fs');
 
 var tc_total = [];
@@ -18,27 +19,27 @@ for(origem in mz){
     var dest = mz[origem][destino].destiny;
 
     tc_total.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_total]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_total / area[origem]]
     );
 
     tci_total.push([
-      {"origin": origem, "originCoord":ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_total]
+      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_total  / area[origem]]
     );
 
     ti_total.push([
-      {"origin": origem, "originCoord":ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_total]
+      {"origin": origem, "originCoord":ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_total  / area[origem]]
     );
 
     tc_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_PPM]
+      {"origin": origem, "originCoord": ct[origem], "destiny":dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TC_PPM  / area[origem]]
     );
 
     tci_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_PPM]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TCI_PPM  / area[origem]]
     );
 
     ti_ppm.push([
-      {"origin": origem, "originCoord": ct[origem], "destiny": mz[origem][destino].destiny,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_PPM]
+      {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, mz[origem][destino].TI_PPM / area[origem] ]
     );
 
   }
