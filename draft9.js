@@ -3,6 +3,22 @@ const fs = require('fs');
 
 const jsonf = mzFile.data;
 
+function checkAB(a, b, index){
+  var minSize =  Math.max(a.legnth, b.length);
+
+  for(var i = 0; i < minSize; i++){
+
+    value = a.RA_NOME.normalize('NFD').replace(/[\u0300-\u036f]/g, "").charCodeAt(index) - b.RA_NOME.normalize('NFD').replace(/[\u0300-\u036f]/g, "").charCodeAt(index);
+
+    if(value!=0){
+      return value;
+    }else{
+      checkAB(a, b, index+1);
+    }
+
+  }
+}
+
 const jsonAsArray = Object.keys(jsonf).map(function (key) {
   return jsonf[key];
 })
@@ -11,7 +27,7 @@ const jsonAsArray = Object.keys(jsonf).map(function (key) {
 });
 
 jsonAsArray.sort(function(a, b) {
-    return a.RA_NOME.normalize('NFD').replace(/[\u0300-\u036f]/g, "").charCodeAt(0) - b.RA_NOME.normalize('NFD').replace(/[\u0300-\u036f]/g, "").charCodeAt(0);
+    checkAB(a,b,0);
 });
 
 jsonAsArray.forEach(function(e,i){
