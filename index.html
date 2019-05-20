@@ -1,0 +1,215 @@
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+
+</head>
+
+<body>
+
+  <div class="card text-center">
+
+    <div id="panelAndMap">
+
+      <label id="hideMenuLabel" for="hide-menu" class="fa fa-bars"></label>
+      <input type="checkbox" name="hide" id="hide-menu">
+
+      <div class="scroll-pad-left"></div>
+      <div class="scroll-pad-right"></div>
+      <div class="grid-wrappers">
+
+        <div id="clear-map">
+          <button type="button" class="resetBtn reverse-colors">Limpar mapa</button>
+        </div>
+
+        <div id="origemDestinoBox" class="grid-container-blocked">
+
+          <div class="container-title">
+            <h3>Matriz Origem-Destino</h3>
+          </div>
+
+          <div class="container-block">
+            <h4>Modal de transporte</h4>
+            <div class="div-flex">
+              <div> <input type="checkbox" value="TC" id="coletivo"> <label for="coletivo">Coletivo</label></div>
+              <div><input type="checkbox" value="TI" id="individual"> <label for="individual">Individual</label></div>
+            </div>
+          </div>
+
+          <div class="container-block">
+            <h4>Período de análise</h4>
+            <div class="div-flex">
+              <div> <input type="radio" name="ppm" id="horapico"><label for="horapico">Hora pico</label></div>
+              <div> <input type="radio" name="ppm" id="total"><label for="total">Total dia</label></div>
+            </div>
+          </div>
+
+          <div class="container-block" id="origem-block">
+            <h4>Origens</h4>
+            <div class="duo">
+              <p class="comment">Clique nas caixas abaixo para habilitar as zonas como origem ou clique no mapa:</p>
+            </div>
+            <div class="duo" id="origem-block-div">
+              <ul id="origem-url">
+                <li><input type="checkbox" id="origem-todos"> <label for="origem-todos">Todas as zonas</label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="container-block" id="destino-block">
+            <h4>Destinos</h4>
+            <div class="duo">
+              <p class="comment">Clique nas caixas abaixo para habilitar as zonas como destino ou clique no mapa:</p>
+            </div>
+            <div class="duo" id="destino-block-div">
+              <ul id="destino-url">
+                <li><input type="checkbox" id="destino-todos"> <label for="destino-todos">Todas as zonas</label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="container-block">
+            <h4>Representação</h4>
+            <div class="duo"><button type="button" id="selectedBtn">Gerar Matriz</button></div>
+          </div>
+
+        </div>
+
+        <div id="interesseBox" class="grid-container-blocked">
+
+          <div class="container-title">
+            <h3>Desejo de viagens</h3>
+          </div>
+
+          <div class="container-block">
+            <h4>Modal de transporte</h4>
+            <div class="div-flex">
+              <div> <input type="checkbox" value="TC" id="coletivoDV"> <label for="coletivoDV">Coletivo</label></div>
+              <div><input type="checkbox" value="TI" id="individualDV"> <label for="individualDV">Individual</label></div>
+            </div>
+          </div>
+
+          <div class="container-block">
+            <h4>Período de análise</h4>
+            <div class="div-flex">
+              <div> <input type="radio" name="ppm" id="horapicoDV"><label for="horapicoDV">Hora pico</label></div>
+              <div> <input type="radio" name="ppm" id="totalDV"><label for="totalDV">Total dia</label></div>
+            </div>
+          </div>
+
+          <div class="container-block">
+            <h4>Sentido</h4>
+            <div class="div-flex">
+              <div><input type="radio" name="espTrip" id="destEsp"><label for="destEsp">Destino</label></div>
+            <div><input type="radio" name="espTrip" id="originEsp"><label for="originEsp">Origem</label></div>
+            </div>
+          </div>
+
+          <div class="container-block" id="zona-block">
+            <h4>Seleção de zona</h4>
+            <div class="duo">
+              <p class="comment">Clique nas caixas abaixo para habilitar a zona ou clique no mapa:</p>
+            </div>
+            <div class="duo" id="zona-block-div">
+              <ul id="zona-url"></ul>
+            </div>
+          </div>
+
+          <div class="container-block" id="dv-rep">
+          <div class="duo"><button type="button" id="interestBtn">Representar</button></div>
+           </div>
+        </div>
+
+        <div id="indicadoresBox" class="grid-container-blocked">
+
+          <div class="container-title">
+            <h3>Indicadores</h3>
+          </div>
+
+          <div class="container-block">
+            <h4>Modal de transporte</h4>
+            <div class="div-flex">
+              <div> <input type="checkbox" value="TC" id="coletivoInd"> <label for="coletivoInd">Coletivo</label></div>
+              <div><input type="checkbox" value="TI" id="individualInd"> <label for="individualInd">Individual</label></div>
+            </div>
+          </div>
+
+          <div class="container-block">
+            <h4>Período de análise</h4>
+            <div class="div-flex">
+              <div> <input type="radio" name="ppm" id="horapicoInd"><label for="horapicoInd">Hora pico</label></div>
+              <div> <input type="radio" name="ppm" id="totalInd"><label for="totalInd">Total dia</label></div>
+            </div>
+          </div>
+
+          <div class="container-block">
+              <h4>Representações</h4>
+              <div class="duo"><button type="button" id="destinyTripsBtn">Principais destinos</button></div>
+              <div class="duo"><button type="button" id="originTripsBtn">Principais origens</button></div>
+              <div class="duo"><button type="button" id="flowODBtn">Principais pares OD</button></div>
+          </div>
+
+
+        </div>
+
+        <div id="download-wrapper" class="grid-container-blocked">
+          <div class="trio">
+            <h3>Download</h3>
+          </div>
+          <div>
+            <input type="radio" name="dwnld" id="dwnldSVG" checked>
+            <label for="dwnldSVG">SVG</label>
+          </div>
+          <div>
+            <input type="radio" name="dwnld" id="dwnldPNG">
+            <label for="dwnldPNG">PNG</label>
+          </div>
+          <div class="dwldDiv">
+            <button type="button" id="downloadSvg" class="reverse-colors fa fa-download"></button>
+          </div>
+          <div>
+            <input type="radio" name="dwnld" id="dwnldPDF">
+            <label for="dwnldPDF">PDF</label>
+          </div>
+          <div>
+            <input type="radio" name="dwnld" id="dwnldSHP">
+            <label for="dwnldSHP">SHP</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="container-wrapper">
+
+        <div id="top-content-wrapper">
+          <div id="top-content">
+            <div id="search-wrapper">
+              <input type="text" id="search" onkeyup="searchFunction()" placeholder="Procure pelas regiões . . ." title="procure pelas regioes">
+              <i id="clear-search" class="fa fa-times"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="containerSvg" id="container"></div>
+        <div class="containerSvg" id="container-legend"></div>
+      </div>
+    </div>
+
+    <h1 id='ODtitle'>
+      <input id="heatMapBtn" type="checkbox" style="">
+      <label id="heatMapLabel" for="heatMapBtn" class="fas fa-poll"></label> Matriz OD<span id="ODtotal">Total: 132</span>&nbsp;&nbsp;
+      <i id="downloadOD" class="fa fa-download"></i>
+
+    </h1>
+
+    <div id="table-wrapper">
+      <table class="table-scroll">
+        <div class="table-scroll" id="results"></div>
+      </table>
+    </div>
+
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://d3js.org/d3.geo.projection.v0.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://d3js.org/d3-drag.v1.min.js"></script>
+    <script src="https://d3js.org/d3-zoom.v1.min.js"></script>
+</body>
