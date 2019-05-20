@@ -136,14 +136,14 @@ setupGradients(listColors);
 
 
 d3.json(
-  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/area_verde.json",
+  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json",
   function(error, jsonFile) {
     var verde = topojson.feature(jsonFile, jsonFile.objects.verde).features;
     ambienteTopo = verde;
     ambiente(ambienteTopo);
 
 d3.json(
-  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/mancha.json",
+  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mancha.json",
   function(error, jsonFile) {
     var urban = topojson.feature(jsonFile, jsonFile.objects.manchaurbana)
     .features;
@@ -151,14 +151,14 @@ d3.json(
     mancha(manchaTopo);
 
   d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/eixo.json",
+    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/eixo.json",
     function(error, jsonFile) {
       var eixos = topojson.feature(jsonFile, jsonFile.objects.eixo).features;
       eixosTopo = eixos;
       eixo(eixosTopo);
 
     d3.json(
-      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/mczona.json",
+      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mczona.json",
       function(error, world) {
         var countries = topojson.feature(world, world.objects.MacrozonasDF)
         .features;
@@ -166,7 +166,7 @@ d3.json(
         draw(topo);
 
         d3.json(
-          "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/lagos.json",
+          "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json",
           function(error, jsonFile) {
             var lakes = topojson.feature(jsonFile, jsonFile.objects.Lagos)
             .features;
@@ -174,12 +174,12 @@ d3.json(
             lagos(lagosTopo);
 
           d3.json(
-            "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/originOD.json",
+            "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json",
             function(error, jsonFile) {
               originOD = jsonFile;
 
              d3.json(
-              "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/destinyOD.json",
+              "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json",
               function(error, jsonFile) {
                 destinyOD = jsonFile;
 
@@ -265,7 +265,7 @@ function selectAsDestiny(node){
   nextBlock.show();
 }
 
-d3.json("https://raw.githubusercontent.com/lucaspdfborges/geojson/master/NOME_ID_MCZ_CENTER_name_sorted.json",
+d3.json("https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/NOME_ID_MCZ_CENTER_name_sorted.json",
 function(error, jsonFile) {
 
   var blockZona = d3.select('#zona-url');
@@ -1092,7 +1092,7 @@ $("#originTripsBtn").click(function() {
   lastRepresentation = "originTrips";
 
   d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/originOD.json",
+    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json",
     function(error, jsonFile) {
       originOD = jsonFile;
       tripsRepresentation(originOD,blueColorFunction);
@@ -1109,7 +1109,7 @@ $("#destinyTripsBtn").click(function() {
   lastRepresentation = "destinyTrips";
 
   d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/destinyOD.json",
+    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json",
     function(error, jsonFile) {
       destinyOD = jsonFile;
       tripsRepresentation(destinyOD,redColorFunction);
@@ -1124,7 +1124,7 @@ $("#flowDOBtn").click(function() {
   redraw();
 
   d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/flow_do.json",
+    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_do.json",
     function(error, jsonFile) {
 
       var dataFile;
@@ -1222,7 +1222,7 @@ $("#flowODBtn").click(function() {
   redraw();
 
   d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/flow_od.json",
+    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json",
     function(error, jsonFile) {
 
       var dataFile;
@@ -1586,7 +1586,7 @@ $("#interestBtn").click(function() {
          }
 
           baseColor = 380;
-          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/mz_array_do.json";
+          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array_do.json";
 
         }else{
 
@@ -1599,7 +1599,7 @@ $("#interestBtn").click(function() {
           }
 
           baseColor = 250;
-          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/mz_array.json";
+          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array.json";
         }
 
       if($("#container-legend svg").length){
@@ -1848,7 +1848,7 @@ $("#interestBtn").click(function() {
     destinyArray.join("").split("");
 
     fetchJSONFile(
-      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/macrozona_od.json",
+      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/macrozona_od.json",
       function(data) {
         var matOD = [];
         matOD = arrayOD(originArray, destinyArray, data);
