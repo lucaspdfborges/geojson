@@ -21,7 +21,7 @@ const rectText = ["COLETIVO","INDIVIDUAL"];
 
 const mapCenter = [-47.797089, -15.77526];
 
-var listColors = [["rgba(232,67,83,0.5)", "rgba(102,8,58,0.5)"],["rgba(0,51,102,0.5)", "rgba(0,102,102,0.5)"],["rgba(0,51,102,0.5)", "rgba(102,8,58,0.5)"],["#FFF", "#DDD"]];
+var listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(200, 30%, 60%, 0.95)", "hsla(90, 30%, 60%, 0.95)"],["hsla(200, 35%, 55%, 0.95)", "hsla(320, 35%, 55%, 0.95)"],["#FFF", "#DDD"]];
 var gradientsArray = [];
 
 let totalSum = 0;
@@ -193,6 +193,8 @@ d3.json(
 
 function selectAsZone(node){
 
+  if($("#originEsp").is(":checked")  || $("#destEsp").is(":checked") ){
+
   var inputID = "#MZ_Z_"+node.attr("macrozona");
 
   $("#zona-url input").each(function(){
@@ -209,7 +211,7 @@ function selectAsZone(node){
       });
 
       if(nodeClicked == 0){
-        node.style("fill", "#779");
+        node.style("fill", "#AAC");
       }else{
         node.style("fill", "rgba(219,220,222,0.5)");
       }
@@ -219,6 +221,7 @@ function selectAsZone(node){
    var nextBlock = $("#dv-rep");
       nextBlock.fadeTo(200, 1.0);
       nextBlock.show();
+  }
 }
 
 function selectAsOrigin(node){
@@ -459,7 +462,7 @@ function ambiente(jsonFile) {
   .insert("path")
   .attr("class", "verde")
   .attr("d", path)
-  .style("fill", "#a7d1be");
+  .style("fill", "#c7e5d8");
 }
 
 function mancha(jsonFile) {
@@ -470,7 +473,7 @@ function mancha(jsonFile) {
   .insert("path")
   .attr("class", "urban")
   .attr("d", path)
-  .style("fill", "#555");
+  .style("fill", "#999");
 }
 
 function lagos(jsonFile) {
@@ -541,7 +544,6 @@ function draw(topo) {
     tooltipMunicipio
     .html(d.properties.MUNICIPIO_);
 
-
   })
   .on("mouseout", function(d, i) {
     tooltip.classed("hidden", true);
@@ -552,6 +554,8 @@ function draw(topo) {
 
     // TODO:  use conditional
     if($("#origemDestinoBox").attr("class")=="grid-container"){
+
+      if($("#horapico").is(":checked") || $("#total").is(":checked")){
 
         if(mouseSelectorOD=="origin"){
 
@@ -564,7 +568,7 @@ function draw(topo) {
                node.attr("isOrigin",0);
            }
 
-            var nextBlock = $("#destino-block");
+          var nextBlock = $("#destino-block");
           if(nextBlock.is(":hidden")){
             nextBlock.fadeTo(200, 1.0);
             nextBlock.show();
@@ -580,12 +584,11 @@ function draw(topo) {
               node.attr("isDestiny",0);
            }
 
-           var nextBlock = $("#destino-block").parent(".grid-container").find(".container-block").last();
+          var nextBlock = $("#destino-block").parent(".grid-container").find(".container-block").last();
           if(nextBlock.is(":hidden")){
             nextBlock.fadeTo(200, 1.0);
             nextBlock.show();
           }
-
         }
 
        let isDestiny =  $("#MZ_D_"+d.properties.MACROZONA).is(":checked");
@@ -600,6 +603,7 @@ function draw(topo) {
         } else{
           node.style("fill", "rgba(219,220,222,0.5)");
         }
+      }
 
     }else if($("#interesseBox").attr("class")=="grid-container"){
 
@@ -677,6 +681,8 @@ function move() {
 
   //adjust the country hover stroke width based on zoom level
   d3.selectAll(".macrozona").style("stroke-width", 1.5 / s);
+  d3.selectAll(".verde").style("stroke-width", 1.5 / s);
+  d3.selectAll(".lagos").style("stroke-width", 1.5 / s);
 
   d3.selectAll(".centroid").attr("r", function() {
     let node = d3.select(this);
@@ -1435,6 +1441,7 @@ function clearAll(){
 
   $("#container-legend").hide();
   $("#top-content").show();
+  $('#heatMapBtn').prop('checked', false);
 
   $(".macrozona").each(function() {
     $(this).css("fill", "rgba(219,220,222,0.5)");
