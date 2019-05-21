@@ -149,32 +149,25 @@
             <div class="duo"><button type="button" id="flowODBtn">Principais pares OD</button></div>
           </div>
 
-
         </div>
 
-        <div id="download-wrapper" class="grid-container-blocked">
-          <div class="trio">
+        <div id="downloadBox" class="grid-container-blocked">
+
+          <div class="container-title">
             <h3>Download</h3>
           </div>
-          <div>
-            <input type="radio" name="dwnld" id="dwnldSVG" checked>
-            <label for="dwnldSVG">SVG</label>
+
+          <div class="container-block">
+            <div class="duo"> <input type="checkbox" id="dwnldPMU"> <label for="dwnldPMU">Mobilidade Urbana</label> </div>
+            <div class="duo"> <input type="checkbox" id="dwnldOD"> <label for="dwnldOD">Matrizes Origem-Destino</label> </div>
+            <div class="duo"> <input type="checkbox" id="dwnldBG"> <label for="dwnldBG">Bases Geográficas</label> </div>
+            <div class="duo"> <input type="checkbox" name="dwnld" id="dwnldSVG" id="dwnldBG"> <label for="dwnldSVG">Representação SVG</label> </div>
           </div>
-          <div>
-            <input type="radio" name="dwnld" id="dwnldPNG">
-            <label for="dwnldPNG">PNG</label>
+
+          <div class="container-block duo">
+            <button type="button" id="downloadSvg" class="fa fa-download"> &nbsp; Baixar</button>
           </div>
-          <div class="dwldDiv">
-            <button type="button" id="downloadSvg" class="reverse-colors fa fa-download"></button>
-          </div>
-          <div>
-            <input type="radio" name="dwnld" id="dwnldPDF">
-            <label for="dwnldPDF">PDF</label>
-          </div>
-          <div>
-            <input type="radio" name="dwnld" id="dwnldSHP">
-            <label for="dwnldSHP">SHP</label>
-          </div>
+
         </div>
       </div>
 
@@ -211,4 +204,4 @@
     <script src="https://d3js.org/topojson.v1.min.js"></script>
     <script src="https://d3js.org/d3-drag.v1.min.js"></script>
     <script src="https://d3js.org/d3-zoom.v1.min.js"></script>
-  </body>
+</body>

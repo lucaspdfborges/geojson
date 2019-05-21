@@ -21,7 +21,7 @@ const rectText = ["COLETIVO","INDIVIDUAL"];
 
 const mapCenter = [-47.797089, -15.77526];
 
-var listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(200, 30%, 60%, 0.95)", "hsla(90, 30%, 60%, 0.95)"],["hsla(200, 35%, 55%, 0.95)", "hsla(320, 35%, 55%, 0.95)"],["#FFF", "#DDD"]];
+var listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(220, 30%, 60%, 0.95)", "hsla(170, 30%, 60%, 0.95)"],["hsla(230, 35%, 55%, 0.95)", "hsla(310, 35%, 55%, 0.95)"],["#FFF", "#DDD"]]
 var gradientsArray = [];
 
 let totalSum = 0;
@@ -380,6 +380,17 @@ function(error, jsonFile) {
   .data(jsonFile.data)
   .enter()
   .append('li')
+  .attr("id", function(d,i){
+       return "search_ID_" + d.ID;
+   })
+  .on("mousemove", function(d,i){
+    let node = d3.select("#MZ_"+d.ID);
+    node.style("fill","#779");
+   })
+  .on("mouseout", function(d, i) {
+    let node = d3.select("#MZ_"+d.ID);
+    node.style("fill","rgba(219, 220, 222, 0.5)");
+  })
   .on("click",function(d){
 
     $("#search").val(d.RA_NOME + " : " + d.MACROZONA);
@@ -393,6 +404,7 @@ function(error, jsonFile) {
 
     setupGradients(listColors);
     mancha(manchaTopo);
+    ambiente(ambienteTopo);
     eixo(eixosTopo);
     draw(topo);
     d3.selectAll(".eixo").style("stroke-width", 0.3);
@@ -651,6 +663,14 @@ function redraw() {
   d3.select("#container svg").remove();
   d3.select("#container-legend svg").remove();
   setup(width, height);
+
+  if(mouseSelectorOD=='origin'){
+    $("#origem-block").css("background-image", "linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
+    $("#destino-block").css("background-image", "none");
+  }else{
+      $("#origem-block").css("background-image","none");
+      $("#destino-block").css("background-image","linear-gradient( rgba(250,120,150,0.1), rgba(255, 255, 255,0))");
+  }
 
   setupGradients(listColors);
   ambiente(ambienteTopo);
@@ -1306,7 +1326,7 @@ $("#flowODBtn").click(function() {
       })
         .attr("r", function(d,i) {
         var ratio = d[1]/max;
-        var radius =( 1 + 10 * ratio);
+        var radius =( 1 + 15 * ratio);
         return (radius||0);
       })
         .attr("fill",function(d,i) {
@@ -1330,7 +1350,7 @@ $("#flowODBtn").click(function() {
       })
         .attr("r", function(d,i) {
         var ratio = d[1]/max;
-        var radius = (1 + 10 * ratio);
+        var radius = (1 + 15 * ratio);
         return (radius||0);
       })
         .attr("fill",function(d,i) {
@@ -1442,6 +1462,8 @@ function clearAll(){
   $("#container-legend").hide();
   $("#top-content").show();
   $('#heatMapBtn').prop('checked', false);
+  $("#origem-block").css("background-image", "linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
+  $("#destino-block").css("background-image", "none");
 
   $(".macrozona").each(function() {
     $(this).css("fill", "rgba(219,220,222,0.5)");
@@ -1884,7 +1906,7 @@ $("#interestBtn").click(function() {
     $("#"+idString+" :input").attr("disabled", true);
     $("#"+idString).addClass('grid-container-blocked').removeClass('grid-container');
     $('#'+idString+" div.container-title h3").first().css("color","#7b7887");
-    $('#'+idString+" div.container-title").first().css("background","rgba(240,240,240,0.9)");
+    $('#'+idString+" div.container-title").first().css("background","#fff");
     $('#'+idString+" div.container-block").each(function(){
       $(this).hide();
     });
@@ -1987,13 +2009,10 @@ $("#heatMapBtn").change(function(){
     }
 });
 
-//mouseSelectorOD
-
 $("#origem-block").on("click", function(){
   mouseSelectorOD = "origin";
   $(this).find("h4").css("color","#167");
   $(this).css("background-image","linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
-  // $(this).css("box-shadow","0px 0px 5px 2px #5ab");
   $("#destino-block").css("background-image","none");
   $("#destino-block").find("h4").css("color","#2a2559");
 });

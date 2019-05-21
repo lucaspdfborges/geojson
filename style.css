@@ -187,7 +187,7 @@ input[type="radio"]:checked + label {
   position: fixed;
   top: 0;
   z-index: 2;
-  background: rgba(255,255,255,0.6);
+background: rgba(255,255,255,0.6);
 
 }
 
@@ -278,8 +278,8 @@ button:hover {
 
 .grid-container {
   border-left: 5px solid #cfcdd4;
-  background-color: rgba(242, 241, 245, 0.9);
-  box-shadow: 0px 0px 3px rgba(255,255,255,0.6);
+  box-shadow: 0px 0px 3px rgba(207,205,212);
+  background-color: rgba(252, 251, 255, 0.95);
   border-radius: 0.25em;
   margin-bottom: 1em;
 
@@ -294,6 +294,7 @@ button:hover {
   grid-column: 1 / 3;
   display: flex;
   justify-content: center;
+  background-color: rgba(255,255,255,0.95);
 }
 
 .container-flex {
@@ -304,9 +305,9 @@ button:hover {
 .container-block {
   display: grid;
   grid-template-columns: auto auto;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid #eee;
   padding: 0.5em 0em;
-  border-left: 2px solid #2a2559;
+  border-left: 2px solid #fff;
   -webkit-transition: all 0.25s linear;
   -moz-transition: all 0.25s linear;
   -ms-transition: all 0.25s linear;
@@ -325,9 +326,9 @@ button:hover {
 }
 
 .grid-container-blocked {
-  border-left: 5px solid rgba(240, 240, 240, 0.9);
-  box-shadow: 0px 0px 3px rgba(255,255,255,0.6);
-  background-color: rgba(240, 240, 240, 0.9);
+  border-left: 5px solid #fff;
+  box-shadow: 0px 0px 3px rgba(207,205,212);
+  background-color: rgba(240, 240, 240, 0.95);
   color: #bcb5c4;
   border-radius: 0.25em;
   display: grid;
@@ -339,6 +340,10 @@ button:hover {
   -ms-transition: height 0.25s ease-out;
   -o-transition: height 0.25s ease-out;
   transition: height 0.25s ease-out;
+}
+
+.grid-container-blocked:hover{
+  box-shadow: 0px 1px 3px rgba(205,205,215);
 }
 
 .grid-container > div {
@@ -537,6 +542,7 @@ tbody tr:nth-child(2n-1) {
 /* S E A R C H    E N G I N E */
 
 #search {
+  font-weight: lighter;
   background-image: url("https://www.w3schools.com/css/searchicon.png");
   background-color: rgba(255, 255, 255, 0.9);
   background-position: 1em 1em;
@@ -598,6 +604,11 @@ tbody tr:nth-child(2n-1) {
   color: #fff;
 }
 
+#clear-map button{
+  font-size: 1.125em;
+
+}
+
 button#clear-map:hover {
   box-shadow: 1px 1px 5px rgba(50, 50, 50, 0.3);
 }
@@ -631,29 +642,24 @@ button#clear-map:hover {
   box-shadow: 0px 0px 1px rgb(50, 50, 50, 0.5);
 }
 
-#download-wrapper {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  border-radius: 0.5em;
+#downloadBox {
   height: 3.5em;
-  font-size: 0.875em;
-  color: #7b7887;
+  border-radius: 0.5em;
   overflow: hidden;
 }
 
-#download-wrapper div {
+#downloadBox .container-block:nth-of-type(2) .duo{
   text-align: center;
   align-self: center;
-}
-.dwldDiv {
-  grid-column: 3;
-  grid-row: 2 / span 3;
-  font-size: 1.5em;
-  display: inline-block;
+  justify-content: left;
 }
 
-#downloadSvg {
-  color: #9e9aad;
+#downloadBox duo{
+  justify-content: left;
+}
+
+#downloadBox button{
+  font-size: lighter;
 }
 
 #downloadSvg:hover {
@@ -838,11 +844,7 @@ button#clear-map:hover {
 }
 
 #origem-block{
-  background-image: linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0));
-}
-
-#destino-block{
-  background-image: linear-gradient( rgba(250,120,150,0.1), rgba(255, 255, 255,0));
+ background-image: linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0));
 }
 
 #origem-block-div,
