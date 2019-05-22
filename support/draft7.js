@@ -19,7 +19,8 @@ for(origem in mz){
     var dest = mz[origem][destino].destiny;
     console.log(origem);
     console.log(area[origem]);
-    var ar = parseInt(area[origem]) || 1000000000;
+    var ar = 1;
+   //var ar = parseInt(area[origem]) || 1000000000;
 
     tc_total.push([
       {"origin": origem, "originCoord": ct[origem], "destiny": dest,  "destinyCoord": ct[dest]}, parseInt(mz[origem][destino].TC_total) / ar ]
