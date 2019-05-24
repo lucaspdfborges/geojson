@@ -19,7 +19,8 @@
       <div class="grid-wrappers">
 
         <div id="clear-map">
-          <button type="button" class="resetBtn reverse-colors">Limpar mapa</button>
+          <button type="button" class="resetBtn reverse-colors">Limpar mapa <i class="far fa-map"></i></button>
+          <button type="button" id="centerMap" class="reverse-colors">Centralizar mapa <i class="fas fa-map-marked-alt"></i></button>
         </div>
 
         <div id="origemDestinoBox" class="grid-container-blocked">
@@ -152,11 +153,11 @@
         </div>
 
         <div id="downloadBox" class="grid-container-blocked">
-
+          
           <div class="container-title">
             <h3>Download</h3>
           </div>
-
+          
           <div class="container-block">
             <div class="duo"> <input type="checkbox" id="dwnldPMU"> <label for="dwnldPMU">Mobilidade Urbana</label> </div>
             <div class="duo"> <input type="checkbox" id="dwnldOD"> <label for="dwnldOD">Matrizes Origem-Destino</label> </div>
@@ -176,8 +177,10 @@
         <div id="top-content-wrapper">
           <div id="top-content">
             <div id="search-wrapper">
+                <div id="search-box">
               <input type="text" id="search" onkeyup="searchFunction()" placeholder="Procure pelas regiões . . ." title="procure pelas regioes">
               <i id="clear-search" class="fa fa-times"></i>
+              </div>
             </div>
           </div>
         </div>

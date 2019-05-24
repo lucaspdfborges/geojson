@@ -1,6 +1,3 @@
-
-d3.select(window).on("resize", throttle);
-
 var zoom = d3.behavior
 .zoom()
 .scaleExtent([1, 20])
@@ -9,7 +6,10 @@ var zoom = d3.behavior
 var width = document.getElementById("container").offsetWidth;
 var height = width * 0.55;
 
-var lastRepresentation = "none";
+var lastPlot = "none";
+var lastZone = "none";
+
+var scaleResize = 1;
 
 // Origin or Destiny selector
 var mouseSelectorOD = "origin";
@@ -39,9 +39,12 @@ g,
 legendSVGright,
 legendSVGleft,
 gLegend,
-defs;
+defs,
+offsetL,
+offsetT;
 
 var graticule = d3.geo.graticule();
+
 var tooltip = d3
 .select("#container")
 .append("div")
@@ -61,9 +64,21 @@ var tooltipNum = tooltip
 
 var canChangeColor = true;
 
+var offsetL = document.getElementById("container").offsetLeft + 20;
+var offsetT = document.getElementById("container").offsetTop + 10;
+
+d3.select(window).on("resize", throttle);
+
+var throttleTimer;
+function throttle() {
+  offsetL = document.getElementById("container").offsetLeft + 20;
+  offsetT = document.getElementById("container").offsetTop + 10;
+}
+
 setup(width, height);
 
 function setup(width, height) {
+  
   projection = d3.geo
   .mercator()
   .translate([33.9 * width, - 19.8* height])
@@ -74,9 +89,10 @@ function setup(width, height) {
   svg = d3
   .select("#container")
   .append("svg")
-  .attr("id","svgChart")
   .attr("width", width)
   .attr("height", height)
+  .call(responsivefy)
+  .attr("id","svgChart")
   .call(zoom)
   .on("click", click);
 
@@ -84,8 +100,6 @@ function setup(width, height) {
 }
 
 function focusArea(width, height, lnCenter) {
-
-  setup(width, height);
 
   var s =3;
 
@@ -95,6 +109,7 @@ function focusArea(width, height, lnCenter) {
   var ty = -height*(1 - 0.5/s - ky*(mapCenter[1] - lnCenter[1]));
 
   var t = [tx, ty];
+  g = d3.select("#container g");
   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 }
 
@@ -132,8 +147,6 @@ function setupGradients(listColors){
 }
 
 setupGradients(listColors);
-
-
 
 d3.json(
   "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json",
@@ -385,11 +398,15 @@ function(error, jsonFile) {
    })
   .on("mousemove", function(d,i){
     let node = d3.select("#MZ_"+d.ID);
-    node.style("fill","#779");
+    
+    //TODO implement
+     node.style("stroke","#779");
+     node.style("stroke-width","3");
    })
   .on("mouseout", function(d, i) {
-    let node = d3.select("#MZ_"+d.ID);
-    node.style("fill","rgba(219, 220, 222, 0.5)");
+     let node = d3.select("#MZ_"+d.ID);
+     node.style("stroke","");
+     node.style("stroke-width","");
   })
   .on("click",function(d){
 
@@ -398,8 +415,6 @@ function(error, jsonFile) {
 
     width = document.getElementById("container").offsetWidth;
     height = width * 0.55;
-    d3.select("#container svg").remove();
-    d3.select("#container-legend svg").remove();
     focusArea(width, height, d.center);
 
     setupGradients(listColors);
@@ -411,7 +426,15 @@ function(error, jsonFile) {
     lagos(lagosTopo);
 
     var mzID = "#MZ_"+d.ID;
-    $(mzID).fadeTo(500, 0).fadeTo(800, 1.0);
+    //TODO implement rest
+    $(".macrozona").each(function() {
+      $(this).css("stroke", "");
+      $(this).css("stroke-width", "");
+    });
+
+    $(mzID).attr("stroke","#A53");
+    $(mzID).attr("stroke-width","2");
+
   })
   .append('a')
   .html(function(d){
@@ -421,9 +444,17 @@ function(error, jsonFile) {
 });
 
 $("#clear-search").on("click",function(){
+  
   $("#search").val('');
-   $("#search-url li").hide();
-  $(this).hide();
+  $("#search-url li").hide();
+  $(this).css('opacity','0');
+  
+   $(".macrozona").each(function() {
+     node = d3.select("#"+ $(this).attr("id"));
+     node.attr("stroke","");
+     node.attr("stroke-width","");
+  });
+  
 });
 
 function searchFunction(){
@@ -435,9 +466,14 @@ function searchFunction(){
   li = ul.getElementsByTagName("li");
 
   if(filter.length){
-      document.getElementById("clear-search").style.display = "inline-block";
+   $("#clear-search").css('opacity','1');
   }else{
-      document.getElementById("clear-search").style.display = "none";
+    $("#clear-search").css('opacity','0');
+    $(".macrozona").each(function() {
+     node = d3.select("#"+ $(this).attr("id"));
+     node.attr("stroke","");
+     node.attr("stroke-width","");
+    });
   }
 
   for (i = 0; i < li.length; i++) {
@@ -468,7 +504,7 @@ function eixo(jsonFile) {
 function ambiente(jsonFile) {
 
   var verde = g.selectAll(".verde").data(jsonFile);
-
+  
   verde
   .enter()
   .insert("path")
@@ -479,7 +515,7 @@ function ambiente(jsonFile) {
 
 function mancha(jsonFile) {
   var urban = g.selectAll(".urban").data(jsonFile);
-
+  
   urban
   .enter()
   .insert("path")
@@ -511,6 +547,7 @@ function draw(topo) {
   .attr("checked", 0)
   .attr("isDestiny",0)
   .attr("isOrigin",0)
+  .attr("plottedValue",0)
   .attr("macrozona", function(d) {
     return d.properties.MACROZONA;
   })
@@ -526,16 +563,17 @@ function draw(topo) {
   });
 
   //offsets for tooltips
-  var offsetL = document.getElementById("container").offsetLeft + 20;
-  var offsetT = document.getElementById("container").offsetTop + 10;
+  offsetL = document.getElementById("container").offsetLeft + 20;
+  offsetT = document.getElementById("container").offsetTop + 10;
 
   //tooltips
   country
   .on("mousemove", function(d, i) {
+    
     var mouse = d3.mouse(svg.node()).map(function(d) {
-      return parseInt(d);
+      return parseInt(d*scaleResize);
     });
-
+    
     tooltip
     .classed("hidden", false)
     .attr(
@@ -548,13 +586,25 @@ function draw(topo) {
     );
 
     tooltipZone
+    .classed("hidden", false)
     .html(d.properties.RA_NOME);
 
     tooltipNum
+    .classed("hidden", false)
     .html("zona: <i style='color:#2a2559;'>#"+ d.properties.MACROZONA+"</i> | Área <i style='color:#2a2559;'>"+ Math.round(d.properties.AREA) +"</i> km²");
-
-    tooltipMunicipio
-    .html(d.properties.MUNICIPIO_);
+    
+    let node = d3.select(this);
+    let nodeValue = node.attr("plottedValue");
+    
+    if(lastPlot=="destinyTrips" || lastPlot=="originTrips"){
+      tooltipMunicipio
+        .classed("hidden", false)
+        .html("nº de viagens: <i style='color:#2a2559;'>"+ nodeValue +"</i> ");
+    }else{
+         tooltipMunicipio
+        .classed("hidden", false)
+        .html(d.properties.MUNICIPIO_);
+    }
 
   })
   .on("mouseout", function(d, i) {
@@ -621,6 +671,14 @@ function draw(topo) {
 
       selectAsZone(node);
       scrollToLi("MZ_Z_"+d.properties.MACROZONA);
+      lastZone = "#MZ_" + d.properties.ID;
+      
+      //TODO change
+      if(lastPlot=="interest"){
+        interestPlot();
+        var inputID = "#MZ_Z_"+node.attr("macrozona");
+        $(inputID).prop( "checked", true );
+      }
 
     } else if($("#indicadoresBox").attr("class")=="grid-container"){
       var value = node.attr("title");
@@ -629,7 +687,7 @@ function draw(topo) {
 
             var val1 = 0;
 
-            if(lastRepresentation=="originTrips"){
+            if(lastPlot=="originTrips"){
                var origin = originOD[node.attr("macrozona")];
 
                if ($("#horapico").is(":checked")) {
@@ -638,7 +696,7 @@ function draw(topo) {
                   val1 = Math.round(100*origin.TC_PPM/(origin.TC_PPM + origin.TI_PPM));
                 }
 
-            }else if(lastRepresentation=="destinyTrips"){
+            }else if(lastPlot=="destinyTrips"){
                var destiny = destinyOD[node.attr("macrozona")];
               if ($("#horapico").is(":checked")) {
                  val1 = Math.round(100*destiny.TC_total/(destiny.TC_total + destiny.TI_total));
@@ -656,29 +714,22 @@ function draw(topo) {
   });
 }
 
-function redraw() {
-  clearAll();
-  width = document.getElementById("container").offsetWidth;
-  height = width * 0.55;
-  d3.select("#container svg").remove();
-  d3.select("#container-legend svg").remove();
-  setup(width, height);
 
-  if(mouseSelectorOD=='origin'){
-    $("#origem-block").css("background-image", "linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
-    $("#destino-block").css("background-image", "none");
-  }else{
-      $("#origem-block").css("background-image","none");
-      $("#destino-block").css("background-image","linear-gradient( rgba(250,120,150,0.1), rgba(255, 255, 255,0))");
-  }
+function centerMap(){
 
-  setupGradients(listColors);
-  ambiente(ambienteTopo);
-  mancha(manchaTopo);
-  eixo(eixosTopo);
-  draw(topo);
-  lagos(lagosTopo);
+  var s =1;
+  var tx = 0;
+  var ty = 0;
+
+  var t = [tx, ty];
+  g = d3.select("#container g");
+  g.attr("transform", "translate(" + t + ")scale(" + s + ")");
+
 }
+
+$("#centerMap").on("click", function(){
+  centerMap();
+});
 
 function move() {
   //prevent scrolling
@@ -700,7 +751,7 @@ function move() {
   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 
   //adjust the country hover stroke width based on zoom level
-  d3.selectAll(".macrozona").style("stroke-width", 1.5 / s);
+  d3.selectAll(".macrozona").style("stroke-width", 2 / s);
   d3.selectAll(".verde").style("stroke-width", 1.5 / s);
   d3.selectAll(".lagos").style("stroke-width", 1.5 / s);
 
@@ -728,13 +779,6 @@ function move() {
   canChangeColor = true;
 }
 
-var throttleTimer;
-function throttle() {
-  window.clearTimeout(throttleTimer);
-  throttleTimer = window.setTimeout(function() {
-    redraw();
-  }, 200);
-}
 
 //geo translation on mouse click in map
 function click() {
@@ -878,7 +922,7 @@ function createOD(testData) {
   });
 }
 
-function baseColorFunctino(baseColor, ratio){
+function baseColorFunction(baseColor, ratio){
   var color =
   "hsla(" +
   (baseColor - 44 * Math.pow(ratio, 0.4)) +
@@ -910,7 +954,7 @@ function blueColorFunction(ratio){
   (130 + 110 * Math.pow(ratio, 0.4)) +
   ",25%," +
   100 * (0.99 - 0.5 * Math.pow(ratio, 0.4)) +
-  "%,0.8)";
+  "%,1)";
 
   return color;
 }
@@ -921,7 +965,7 @@ function redColorFunction(ratio){
   (60 - 50 * Math.pow(ratio, 0.4)) +
   ",40%," +
   100 * (0.99 - 0.6 * Math.pow(ratio, 0.4)) +
-  "%,0.8)";
+  "%,1)";
 
   return color;
 }
@@ -956,8 +1000,13 @@ function zoneLegend(zoneName, legendSVG, val1, val2){
         .style("fill",function(d,i){
           return rectColorsText[i];
         });
-
-    var textLegend = zoneName + " Indicador de origem: ";
+    
+   var textLegend = zoneName ;
+   if($("#destEsp").is(":checked")){
+     textLegend  += " Indicador de destino: ";
+   }else if($("#originEsp").is(":checked")){
+     textLegend  += " Indicador de origem: ";
+   }
 
     if ($("#coletivo").is(":checked") && !$("#individual").is(":checked")) {
       textLegend += "coletivo";
@@ -1069,6 +1118,7 @@ function tripsRepresentation(jsonFile,colorFunction){
     var maxLegend = 0;
     // Coloring the zones
     $(".macrozona").each(function() {
+      var node = d3.select("#"+$(this).attr("id"));
       var macrozona = $(this).attr("macrozona");
       var value = 0;
       var max = 1;
@@ -1105,17 +1155,22 @@ function tripsRepresentation(jsonFile,colorFunction){
       maxLegend = max;
 
       var color = colorFunction(value/max);
+      node.attr("plottedValue", Math.ceil(value));
 
       $(this).css("fill", color);
+      //todo change
+      $(this).css("stroke", "rgba(150,150,150,0.2)");
+
+      
     });
 
    // LEGEND
    tripsLegend(colorFunction, maxLegend);
 }
 
-$("#originTripsBtn").click(function() {
-
-  lastRepresentation = "originTrips";
+function plotOriginTrips(){
+    clearAll();
+  lastPlot = "originTrips";
 
   d3.json(
     "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json",
@@ -1127,12 +1182,15 @@ $("#originTripsBtn").click(function() {
     }
   );
 
+}
 
+$("#originTripsBtn").click(function() {
+  plotOriginTrips();
 });
 
-$("#destinyTripsBtn").click(function() {
-
-  lastRepresentation = "destinyTrips";
+function plotDestinyTrips(){
+  clearAll();
+  lastPlot = "destinyTrips";
 
   d3.json(
     "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json",
@@ -1143,109 +1201,17 @@ $("#destinyTripsBtn").click(function() {
       $("#top-content").hide();
     }
   );
+}
+
+$("#destinyTripsBtn").click(function() {
+   plotDestinyTrips();
 });
 
+function plotFlowOD(){
+  clearAll();
+  //redraw();
 
-$("#flowDOBtn").click(function() {
-  redraw();
-
-  d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_do.json",
-    function(error, jsonFile) {
-
-      var dataFile;
-
-       if ($("#coletivo").is(":checked") && !$("#individual").is(":checked")) {
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TC_PPM;
-            } else {
-              dataFile = jsonFile.TC_total;
-            }
-          }
-          else if ($("#individual").is(":checked") && !$("#coletivo").is(":checked")) {
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TI_PPM;
-            } else {
-              dataFile = jsonFile.TI_total;
-            }
-          } else{
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TCI_PPM;
-            } else {
-              dataFile = jsonFile.TCI_total;
-            }
-          }
-
-
-      g
-        .selectAll("line")
-        .data(dataFile)
-        .enter()
-        .append("line")
-        .attr("class", "line-centroid")
-        .attr("x1", function(d) {
-        return projection(d[0].originCoord)[0];
-      })
-        .attr("y1", function(d) {
-        return projection(d[0].originCoord)[1];
-      })
-        .attr("x2", function(d) {
-        return projection(d[0].destinyCoord)[0];
-      })
-        .attr("y2", function(d) {
-        return projection(d[0].destinyCoord)[1];
-      })
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", function(d,i) {
-        var ratio = d[1]/dataFile[0][1];
-        return (10 * ratio);
-      })
-        .attr("stroke", function(d,i) {
-        var ratio = d[1]/dataFile[0][1];
-        var color = baseColorFunctino(250, ratio);
-        return color;
-      })
-        .attr("ratio", function(d,i) {
-        var ratio = d[1]/dataFile[0][1];
-        return (ratio || 0);
-      });
-
-      var centroids = g
-                      .selectAll("circle")
-                      .data(dataFile, function(d){return d})
-                      .enter();
-
-          centroids
-                  .append("circle")
-                  .attr("class", "centroid")
-                  .attr("cx", function(d) {
-                    return projection(d[0].originCoord)[0];
-                  })
-                  .attr("cy", function(d) {
-                     return projection(d[0].originCoord)[1];
-                  })
-                  .attr("r", function(d,i) {
-                    var ratio = d[1]/dataFile[0][1];
-                    var radius = 16 * ratio;
-                    return (radius||0);
-                  })
-                  .attr("fill",function(d,i) {
-                      var ratio = d[1]/dataFile[0][1];
-                      var color = baseColorFunctino(250, ratio);
-                      return color;
-                  })
-                  .attr("ratio", function(d,i) {
-                      var ratio = d[1]/dataFile[0][1];
-                      return (ratio || 0);
-                  });
-
-  });
-
-});
-
-
-$("#flowODBtn").click(function() {
-  redraw();
+  lastPlot = "flowOD";
 
   d3.json(
     "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json",
@@ -1300,6 +1266,33 @@ $("#flowODBtn").click(function() {
         var ratio = d[1]/max;
         return (1 + 10 * ratio);
       })
+      .on("mousemove", function(d, i) {
+
+        var mouse = d3.mouse(svg.node()).map(function(d) {
+          return parseInt(d);
+        });
+
+        tooltip
+          .classed("hidden", false)
+          .attr(
+          "style",
+          "left:" +
+          (mouse[0] + offsetL) +
+          "px;top:" +
+          (mouse[1] + offsetT) +
+          "px"
+        );
+
+        tooltipNum
+          .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
+        
+        tooltipMunicipio.classed("hidden", true);
+        tooltipZone.classed("hidden", true);
+
+      })
+        .on("mouseout", function(d, i) {
+        tooltip.classed("hidden", true);
+      })
         .attr("stroke", function(d,i) {
         var ratio = d[1]/max;
         var color = baseColorFunctionMin(300, ratio);
@@ -1314,6 +1307,9 @@ $("#flowODBtn").click(function() {
                       .selectAll("circle")
                       .data(shortData, function(d){return d})
                       .enter();
+
+      offsetL = document.getElementById("container").offsetLeft + 20;
+      offsetT = document.getElementById("container").offsetTop + 10;
 
       centroids
         .append("circle")
@@ -1358,6 +1354,33 @@ $("#flowODBtn").click(function() {
         var color = baseColorFunctionMin(300, ratio);
         return color;
       })
+      .on("mousemove", function(d, i) {
+
+        var mouse = d3.mouse(svg.node()).map(function(d) {
+          return parseInt(d);
+        });
+
+        tooltip
+          .classed("hidden", false)
+          .attr(
+          "style",
+          "left:" +
+          (mouse[0] + offsetL) +
+          "px;top:" +
+          (mouse[1] + offsetT) +
+          "px"
+        );
+
+        tooltipNum
+          .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
+        
+        tooltipMunicipio.classed("hidden", true);
+        tooltipZone.classed("hidden", true);
+
+      })
+        .on("mouseout", function(d, i) {
+        tooltip.classed("hidden", true);
+      })
         .attr("ratio", function(d,i) {
         var ratio = d[1]/max;
         return (ratio || 0);
@@ -1400,12 +1423,12 @@ $("#flowODBtn").click(function() {
           .append("text")
           .attr("font-size", "0.75em")
           .attr("x", function(d,i){
-            return (51*(7-i));
+            return (52*(7-i) - 12);
           })
           .attr("y", 15)
           .text(function(d,i){
             if(i){
-              return Math.round(100*i/5)+" %";
+              return max*i/5;
             }
           })
           .style("fill",function(d,i){
@@ -1420,20 +1443,95 @@ $("#flowODBtn").click(function() {
           .append("text")
           .attr("font-size", "0.75em")
           .attr("x", 0 )
-          .attr("y", 35)
-          .text("(%) do máximo")
+          .attr("y", 27)
+          .text("nº de viagens")
+          .style("fill","#555");
+      
+          legendLeft
+          .append("text")
+          .attr("font-size", "0.75em")
+          .attr("x", 0 )
+          .attr("y", 43)
+          .text("intra-zonal")
+          .style("fill","#555");
+      
+      
+      var legendSVGright = d3.select('#container-legend')
+                            .append("svg")
+                            .attr("id","legendRight")
+                            .attr("width", 600)
+                            .attr("height", height/5);
+
+      var legendRight = legendSVGright.append("g");
+
+          legendRight.selectAll("rect")
+          .data(colorGrad)
+          .enter()
+          .append("rect")
+          .attr("x", function(d,i){
+            return (51*(7-i));
+          })
+          .attr("y", 25)
+          .attr("height", function(d,i){
+            return(2*i)
+          })
+          .attr("width", 40)
+          .style("fill", function(d){
+            return d;
+          });
+
+          legendRight.selectAll("text")
+          .data(colorGrad)
+          .enter()
+          .append("text")
+          .attr("font-size", "0.75em")
+          .attr("x", function(d,i){
+            return (52*(7-i) - 4);
+          })
+          .attr("y", 15)
+          .text(function(d,i){
+            if(i){
+              return max*i/5;
+            }
+          })
+          .style("fill",function(d,i){
+            if(i%2){
+              return "#777";
+            }else{
+              return "#666";
+            }
+          });
+
+          legendRight
+          .append("text")
+          .attr("font-size", "0.75em")
+          .attr("x", 0 )
+          .attr("y", 27)
+          .text("nº de viagens")
+          .style("fill","#555");
+      
+          legendRight
+          .append("text")
+          .attr("font-size", "0.75em")
+          .attr("x", 0 )
+          .attr("y", 43)
+          .text("entre zonas")
           .style("fill","#555");
 
   });
 
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
+}
+
+$("#flowODBtn").click(function() {
+    plotFlowOD();
 });
 
 $("#selectAllBtn").click(function() {
   $(".macrozona").each(function() {
     if (
-      document.getElementById("inputDestino").checked &&
+       document.getElementById("inputDestino").checked &&
       !document.getElementById("inputOrigem").checked
     ) {
       $(this).css("fill", "url(#svgGradient1)");
@@ -1459,8 +1557,9 @@ $("#selectAllBtn").click(function() {
 
 function clearAll(){
 
+  $(".macrozona").css("stroke","");
   $("#container-legend").hide();
-  $("#top-content").show();
+  $("#top-content").fadeIn();
   $('#heatMapBtn').prop('checked', false);
   $("#origem-block").css("background-image", "linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
   $("#destino-block").css("background-image", "none");
@@ -1471,8 +1570,10 @@ function clearAll(){
     var node = d3.select("#"+$(this).attr("id"));
     node.attr("isOrigin", 0);
     node.attr("isDestiny", 0);
+    
+    $(this).css("stroke", "rgba(255,255,255,0)");
   });
-
+   
   matODdownload = [];
 
   if ($("table").length != 0) {
@@ -1481,7 +1582,7 @@ function clearAll(){
 
   $("#ODtitle").css("visibility", "hidden");
   $("#table-wrapper").css("visibility", "hidden");
-  $("#container-legend svg").remove();
+  $("#container-legend svg").fadeOut(200, function() { $(this).remove(); });
   $( ".centroid" ).remove();
   $( ".line-centroid" ).remove();
 
@@ -1496,6 +1597,8 @@ function clearAll(){
     $("#zona-block li input").each(function(){
      $(this).prop( "checked", false);
   });
+
+  lastPlot = "none";
 
 }
 
@@ -1587,8 +1690,11 @@ function arrayOD(originArray, destinyArray, odJson) {
   return matrixOD;
 }
 
-$("#interestBtn").click(function() {
-
+function interestPlot(){
+  
+  offsetL = document.getElementById("container").offsetLeft + 20;
+  offsetT = document.getElementById("container").offsetTop + 10;
+  
   $( ".centroid" ).remove();
   $( ".line-centroid" ).remove();
 
@@ -1717,12 +1823,39 @@ $("#interestBtn").click(function() {
               return projection(d.coordinates)[1];
             }
           })
+          .on("mousemove", function(d, i) {
+
+            var mouse = d3.mouse(svg.node()).map(function(d) {
+              return parseInt(d);
+            });
+
+            tooltip
+              .classed("hidden", false)
+              .attr(
+              "style",
+              "left:" +
+              (mouse[0] + offsetL) +
+              "px;top:" +
+              (mouse[1] + offsetT) +
+              "px"
+            );
+
+            tooltipNum
+              .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
+
+            tooltipMunicipio.classed("hidden", true);
+            tooltipZone.classed("hidden", true);
+
+          })
+            .on("mouseout", function(d, i) {
+            tooltip.classed("hidden", true);
+          })
           .attr("stroke-linecap", "round")
           .attr("stroke-width", function(d,i) {
             return (10 * ratios[i]);
           })
           .attr("stroke", function(d,i) {
-            var color = baseColorFunctino(baseColor, ratios[i]);
+            var color = baseColorFunction(baseColor, ratios[i]);
             return color;
           })
           .attr("ratio", function(d,i) {
@@ -1749,8 +1882,35 @@ $("#interestBtn").click(function() {
             var radius = 16 * ratios[i];
             return (radius||0);
           })
+          .on("mousemove", function(d, i) {
+
+            var mouse = d3.mouse(svg.node()).map(function(d) {
+              return parseInt(d);
+            });
+
+            tooltip
+              .classed("hidden", false)
+              .attr(
+              "style",
+              "left:" +
+              (mouse[0] + offsetL) +
+              "px;top:" +
+              (mouse[1] + offsetT) +
+              "px"
+            );
+
+            tooltipNum
+              .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
+
+            tooltipMunicipio.classed("hidden", true);
+            tooltipZone.classed("hidden", true);
+
+          })
+            .on("mouseout", function(d, i) {
+            tooltip.classed("hidden", true);
+          })
           .attr("fill",function(d,i) {
-              var color = baseColorFunctino(baseColor, ratios[i]);
+              var color = baseColorFunction(baseColor, ratios[i]);
               if(mz == d.destiny){
                    color = "url(#svgGradient4)"
                 }
@@ -1758,7 +1918,7 @@ $("#interestBtn").click(function() {
           })
           .style("stroke", function(d,i){
             if(mz == d.destiny){
-                   return baseColorFunctino(baseColor, ratios[i]);
+                   return baseColorFunction(baseColor, ratios[i]);
                 }
           })
           .style("stroke-width", function(d,i){
@@ -1773,7 +1933,7 @@ $("#interestBtn").click(function() {
           var colorGrad =[];
 
           for(var i = 0; i < 6; i++){
-            var color = baseColorFunctino(baseColor, i/5);
+            var color = baseColorFunction(baseColor, i/5);
             colorGrad.push(color);
           }
 
@@ -1844,10 +2004,17 @@ $("#interestBtn").click(function() {
         });
       }
     });
-    redraw();
+  
+  //redraw();
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
-  });
+  
+  lastPlot = "interest";
+}
+
+$("#interestBtn").click(function() {
+     interestPlot();
+});
 
   $("#selectedBtn").click(function() {
     if ($("table").length != 0) {
@@ -2023,6 +2190,14 @@ $("#destino-block").on("click", function(){
   $("#origem-block").find("h4").css("color","#2a2559");
   $(this).find("h4").css("color","#A55");
   $(this).css("background-image","linear-gradient( rgba(250,120,150,0.1), rgba(255, 255, 255,0))");
+
+  if($("#destino-block input:checkbox:checked").length > 0 && $("#origem-block input:checkbox:checked").length > 0){
+    $("#selectedBtn").attr("disabled", false);
+    $("#selectedBtn").css("opacity", "1.0");
+  }else{
+     $("#selectedBtn").attr("disabled", true);
+     $("#selectedBtn").css("opacity", "0.3");
+  };
 });
 
 
@@ -2135,5 +2310,54 @@ $(".scroll-pad-right").first().height($("#container").height());
 function scrollToLi(elementID) {
   var elmnt = document.getElementById(elementID);
   elmnt.scrollIntoView({ block: 'end', behavior: 'smooth' });
-
 }
+
+$("#indicadoresBox input").on("change",function(){
+  if(lastPlot=="originTrips"){
+    plotOriginTrips();
+  } else if (lastPlot=="destinyTrips"){
+    plotDestinyTrips();
+  } else if (lastPlot=="flowOD"){
+    plotFlowOD();
+  }
+});
+
+$("#interesseBox input").on("change",function(){
+  if(lastPlot=="interest"){
+    
+    var node = d3.select(lastZone);
+    node.attr("clicked", 1);
+    
+    interestPlot();
+    
+    $(inputID).prop( "checked", true );
+  }
+});
+
+function responsivefy(svg) {
+  
+  var oldWidth = $("#container").width();
+
+  const container = d3.select(svg.node().parentNode),
+      width = parseInt(svg.style('width'), 10),
+      height = parseInt(svg.style('height'), 10),
+      aspect = width / height;
+
+  svg.attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('preserveAspectRatio', 'xMinYMid')
+      .call(resize);
+ 
+  d3.select(window).on(
+      'resize.' + container.attr('id'), 
+      resize
+  );
+ 
+  function resize() {
+      const w = parseInt(container.style('width'));
+      scaleResize = w/oldWidth;
+      svg.attr('width', w);
+      svg.attr('height', Math.round(w / aspect));
+  }
+  
+}
+
