@@ -56,10 +56,8 @@ p.tooltipMunicipio {
   position: absolute;
   width: 15em;
   overflow: hidden;
-  padding-right: 2em;
-  padding-left: 2em;
-  padding-top: 3.5em;
-  padding-bottom: 2em;
+  padding: 3.5em 2em 2em 2em;
+
   -webkit-transition: all 0.25s linear;
   -moz-transition: all 0.25s linear;
   -ms-transition: all 0.25s linear;
@@ -97,16 +95,17 @@ h4 {
 
 h5 {
   color: #779;
-} 
+}
 
 #clear-map button {
+  font-size: 0.925em;
   box-shadow: 0px 0px 3px rgba(207,205,212);
   width: 100%;
-  border-radius: 0.25em;
+  border-radius: 1em;
   border: 1px solid #eee;
   margin-bottom: 0.5em;
-  
-    -webkit-transition: background 150ms ease-out;
+
+  -webkit-transition: background 150ms ease-out;
   -moz-transition: background 150ms ease-out;
   -ms-transition: background 150ms ease-out;
   -o-transition: background 150ms ease-out;
@@ -172,8 +171,7 @@ input[type="radio"]:checked + label {
   -ms-transition: stroke-width 0.5s ease-out;
   -o-transition: stroke-width 0.5s ease-out;
   transition: stroke-width 0.5s ease-out;
-  
-  
+
   -webkit-transition: fill 450ms ease-out;
   -moz-transition: fill 450ms ease-out;
   -ms-transition: fill 450ms ease-out;
@@ -219,8 +217,7 @@ input[type="radio"]:checked + label {
   position: fixed;
   top: 0;
   z-index: 2;
-background: rgba(255,255,255,0.9);
-
+  background: rgba(255,255,255,0.9);
 }
 
 #container-legend svg {
@@ -243,6 +240,7 @@ background: rgba(255,255,255,0.9);
 .hidden {
   display: none;
 }
+
 div.tooltip {
   color: #222;
   background: #fff;
@@ -253,6 +251,7 @@ div.tooltip {
   opacity: 0.9;
   position: absolute;
 }
+
 .graticule {
   fill: none;
   stroke: #8f8f8f;
@@ -323,6 +322,7 @@ button:hover {
 }
 
 .container-title {
+  color: #2a2559;
   grid-column: 1 / 3;
   display: flex;
   justify-content: center;
@@ -340,6 +340,7 @@ button:hover {
   border-bottom: 1px solid #eee;
   padding: 0.5em 0em;
   border-left: 2px solid #335;
+
   -webkit-transition: all 0.25s linear;
   -moz-transition: all 0.25s linear;
   -ms-transition: all 0.25s linear;
@@ -375,7 +376,7 @@ button:hover {
 }
 
 .grid-container-blocked:hover{
-  box-shadow: 1px 1px 5px rgba(105,105,125);  
+  box-shadow: 1px 1px 5px rgba(105,105,125);
 }
 
 .grid-container > div {
@@ -439,6 +440,7 @@ button:hover {
   margin-top: 3rem;
   box-shadow: 0px 1px 5px rgba(50, 50, 50, 0.3);
   z-index: 997;
+
   -webkit-transition: left 0.25s ease-out;
   -moz-transition: left 0.25s ease-out;
   -ms-transition: left 0.25s ease-out;
@@ -462,6 +464,7 @@ button:hover {
   left: 0px;
   top: 0px;
   z-index: 999;
+
   -webkit-transition: top 0.25s ease-out, left 0.25s ease-out;
   -moz-transition: top 0.25s ease-out, left 0.25s ease-out;
   -ms-transition: top 0.25s ease-out, left 0.25s ease-out;
@@ -628,7 +631,7 @@ tbody tr:nth-child(2n-1) {
 
 #search-wrapper li {
   border: 1px solid rgba(250, 250, 250, 0.7);
-  margin-top: -1px; /* Prevent double borders */
+  margin-top: -1px;
   background-color: rgba(250, 250, 250, 0.7);
   padding: 12px;
   text-decoration: none;
@@ -806,11 +809,11 @@ button#clear-map:hover {
   #title {
     display: none;
   }
-  
+
   .scroll-pad-left{
     display: none;
   }
-  
+
   .scroll-pad-right{
     display: none;
   }
@@ -931,4 +934,3 @@ button#clear-map:hover {
   display: flex;
   justify-content: space-evenly;
 }
-

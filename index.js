@@ -10,7 +10,7 @@ var lastPlot = "none";
 var lastZone = "none";
 
 var scaleResize = 1;
-
+var currentZoom = 1;
 // Origin or Destiny selector
 var mouseSelectorOD = "origin";
 
@@ -18,6 +18,15 @@ var mouseSelectorOD = "origin";
 const rectColors = ["hsla(0, 20%, 50%,0.4)","hsla(120, 20%, 50%,0.4)","hsla(240, 20%, 50%,0.4)"];
 const rectColorsText = ["hsla(0, 20%, 20%, 1)","hsla(120, 20%, 20%, 1)","hsla(240, 20%, 20%, 1)"];
 const rectText = ["COLETIVO","INDIVIDUAL"];
+
+// Paths for json files
+const areaVerdeJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json"
+const manchaUrbanaJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mancha.json"
+const eixosViariosJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/eixo.json"
+const zonasJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mczona.json"
+const lagosJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json"
+const origemOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json"
+const destinoOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json"
 
 const mapCenter = [-47.797089, -15.77526];
 
@@ -62,8 +71,6 @@ var tooltipNum = tooltip
                 .append("p")
                 .attr("class","tooltipNum");
 
-var canChangeColor = true;
-
 var offsetL = document.getElementById("container").offsetLeft + 20;
 var offsetT = document.getElementById("container").offsetTop + 10;
 
@@ -78,7 +85,7 @@ function throttle() {
 setup(width, height);
 
 function setup(width, height) {
-  
+
   projection = d3.geo
   .mercator()
   .translate([33.9 * width, - 19.8* height])
@@ -148,61 +155,35 @@ function setupGradients(listColors){
 
 setupGradients(listColors);
 
-d3.json(
-  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json",
-  function(error, jsonFile) {
-    var verde = topojson.feature(jsonFile, jsonFile.objects.verde).features;
-    ambienteTopo = verde;
-    ambiente(ambienteTopo);
+d3.queue(2)
+    .defer(d3.json, areaVerdeJSON)
+    .defer(d3.json, manchaUrbanaJSON)
+    .defer(d3.json, eixosViariosJSON)
+    .defer(d3.json, zonasJSON)
+    .defer(d3.json, lagosJSON)
+    .defer(d3.json, origemOdJSON)
+    .defer(d3.json, destinoOdJSON)
+    .awaitAll(loadedJSONs);
 
-d3.json(
-  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mancha.json",
-  function(error, jsonFile) {
-    var urban = topojson.feature(jsonFile, jsonFile.objects.manchaurbana)
-    .features;
-    manchaTopo = urban;
-    mancha(manchaTopo);
+function loadedJSONs(error, results){
+   if (error) throw error;
 
-  d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/eixo.json",
-    function(error, jsonFile) {
-      var eixos = topojson.feature(jsonFile, jsonFile.objects.eixo).features;
-      eixosTopo = eixos;
-      eixo(eixosTopo);
+   ambienteTopo = topojson.feature(results[0], results[0].objects.verde).features;
+   manchaTopo = topojson.feature(results[1], results[1].objects.manchaurbana).features;
+   eixosTopo = topojson.feature(results[2], results[2].objects.eixo).features;
+   topo = topojson.feature(results[3], results[3].objects.MacrozonasDF)
+   .features;
+   lagosTopo = topojson.feature(results[4], results[4].objects.Lagos)
+   .features;
+   originOD = results[5];
+   destinyOD = results[6];
 
-    d3.json(
-      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mczona.json",
-      function(error, world) {
-        var countries = topojson.feature(world, world.objects.MacrozonasDF)
-        .features;
-        topo = countries;
-        draw(topo);
-
-        d3.json(
-          "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json",
-          function(error, jsonFile) {
-            var lakes = topojson.feature(jsonFile, jsonFile.objects.Lagos)
-            .features;
-            lagosTopo = lakes;
-            lagos(lagosTopo);
-
-          d3.json(
-            "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json",
-            function(error, jsonFile) {
-              originOD = jsonFile;
-
-             d3.json(
-              "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json",
-              function(error, jsonFile) {
-                destinyOD = jsonFile;
-
-              });
-            });
-          });
-      });
-    });
-  });
-});
+   ambiente(ambienteTopo);
+   mancha(manchaTopo);
+   eixo(eixosTopo);
+   draw(topo);
+   lagos(lagosTopo);
+}
 
 function selectAsZone(node){
 
@@ -398,7 +379,7 @@ function(error, jsonFile) {
    })
   .on("mousemove", function(d,i){
     let node = d3.select("#MZ_"+d.ID);
-    
+
     //TODO implement
      node.style("stroke","#779");
      node.style("stroke-width","3");
@@ -444,17 +425,17 @@ function(error, jsonFile) {
 });
 
 $("#clear-search").on("click",function(){
-  
+
   $("#search").val('');
   $("#search-url li").hide();
   $(this).css('opacity','0');
-  
+
    $(".macrozona").each(function() {
      node = d3.select("#"+ $(this).attr("id"));
      node.attr("stroke","");
      node.attr("stroke-width","");
   });
-  
+
 });
 
 function searchFunction(){
@@ -504,7 +485,7 @@ function eixo(jsonFile) {
 function ambiente(jsonFile) {
 
   var verde = g.selectAll(".verde").data(jsonFile);
-  
+
   verde
   .enter()
   .insert("path")
@@ -515,7 +496,7 @@ function ambiente(jsonFile) {
 
 function mancha(jsonFile) {
   var urban = g.selectAll(".urban").data(jsonFile);
-  
+
   urban
   .enter()
   .insert("path")
@@ -569,11 +550,11 @@ function draw(topo) {
   //tooltips
   country
   .on("mousemove", function(d, i) {
-    
+
     var mouse = d3.mouse(svg.node()).map(function(d) {
       return parseInt(d*scaleResize);
     });
-    
+
     tooltip
     .classed("hidden", false)
     .attr(
@@ -592,10 +573,10 @@ function draw(topo) {
     tooltipNum
     .classed("hidden", false)
     .html("zona: <i style='color:#2a2559;'>#"+ d.properties.MACROZONA+"</i> | Área <i style='color:#2a2559;'>"+ Math.round(d.properties.AREA) +"</i> km²");
-    
+
     let node = d3.select(this);
     let nodeValue = node.attr("plottedValue");
-    
+
     if(lastPlot=="destinyTrips" || lastPlot=="originTrips"){
       tooltipMunicipio
         .classed("hidden", false)
@@ -672,7 +653,7 @@ function draw(topo) {
       selectAsZone(node);
       scrollToLi("MZ_Z_"+d.properties.MACROZONA);
       lastZone = "#MZ_" + d.properties.ID;
-      
+
       //TODO change
       if(lastPlot=="interest"){
         interestPlot();
@@ -732,13 +713,12 @@ $("#centerMap").on("click", function(){
 });
 
 function move() {
-  //prevent scrolling
-  canChangeColor = false;
 
   var t = d3.event.translate;
   var s = d3.event.scale;
   zscale = s;
   var h = height / 4;
+  currentZoom = zscale;
 
   t[0] = Math.min(width / height * (s - 1), Math.max(width * (1 - s), t[0]));
 
@@ -776,7 +756,6 @@ function move() {
     return 1  / s;
   });
 
-  canChangeColor = true;
 }
 
 
@@ -1000,7 +979,7 @@ function zoneLegend(zoneName, legendSVG, val1, val2){
         .style("fill",function(d,i){
           return rectColorsText[i];
         });
-    
+
    var textLegend = zoneName ;
    if($("#destEsp").is(":checked")){
      textLegend  += " Indicador de destino: ";
@@ -1161,7 +1140,7 @@ function tripsRepresentation(jsonFile,colorFunction){
       //todo change
       $(this).css("stroke", "rgba(150,150,150,0.2)");
 
-      
+
     });
 
    // LEGEND
@@ -1264,7 +1243,7 @@ function plotFlowOD(){
         .attr("stroke-linecap", "round")
         .attr("stroke-width", function(d,i) {
         var ratio = d[1]/max;
-        return (1 + 10 * ratio);
+        return ((1 + (10 * ratio))/currentZoom);
       })
       .on("mousemove", function(d, i) {
 
@@ -1285,7 +1264,7 @@ function plotFlowOD(){
 
         tooltipNum
           .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
-        
+
         tooltipMunicipio.classed("hidden", true);
         tooltipZone.classed("hidden", true);
 
@@ -1322,7 +1301,7 @@ function plotFlowOD(){
       })
         .attr("r", function(d,i) {
         var ratio = d[1]/max;
-        var radius =( 1 + 15 * ratio);
+        var radius =((1 + 15 * ratio/currentZoom));
         return (radius||0);
       })
         .attr("fill",function(d,i) {
@@ -1346,7 +1325,7 @@ function plotFlowOD(){
       })
         .attr("r", function(d,i) {
         var ratio = d[1]/max;
-        var radius = (1 + 15 * ratio);
+        var radius = ((1 + 15 * ratio)/currentZoom);
         return (radius||0);
       })
         .attr("fill",function(d,i) {
@@ -1373,7 +1352,7 @@ function plotFlowOD(){
 
         tooltipNum
           .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
-        
+
         tooltipMunicipio.classed("hidden", true);
         tooltipZone.classed("hidden", true);
 
@@ -1410,7 +1389,7 @@ function plotFlowOD(){
           })
           .attr("cy", 35)
           .attr("r", function(d,i){
-            return(16*(i/5))
+            return(16*(i/5)/currentZoom)
           })
           .style("stroke", "#ccc")
           .style("fill", function(d){
@@ -1446,7 +1425,7 @@ function plotFlowOD(){
           .attr("y", 27)
           .text("nº de viagens")
           .style("fill","#555");
-      
+
           legendLeft
           .append("text")
           .attr("font-size", "0.75em")
@@ -1454,8 +1433,8 @@ function plotFlowOD(){
           .attr("y", 43)
           .text("intra-zonal")
           .style("fill","#555");
-      
-      
+
+
       var legendSVGright = d3.select('#container-legend')
                             .append("svg")
                             .attr("id","legendRight")
@@ -1509,7 +1488,7 @@ function plotFlowOD(){
           .attr("y", 27)
           .text("nº de viagens")
           .style("fill","#555");
-      
+
           legendRight
           .append("text")
           .attr("font-size", "0.75em")
@@ -1570,10 +1549,10 @@ function clearAll(){
     var node = d3.select("#"+$(this).attr("id"));
     node.attr("isOrigin", 0);
     node.attr("isDestiny", 0);
-    
+
     $(this).css("stroke", "rgba(255,255,255,0)");
   });
-   
+
   matODdownload = [];
 
   if ($("table").length != 0) {
@@ -1691,10 +1670,10 @@ function arrayOD(originArray, destinyArray, odJson) {
 }
 
 function interestPlot(){
-  
+
   offsetL = document.getElementById("container").offsetLeft + 20;
   offsetT = document.getElementById("container").offsetTop + 10;
-  
+
   $( ".centroid" ).remove();
   $( ".line-centroid" ).remove();
 
@@ -2004,11 +1983,11 @@ function interestPlot(){
         });
       }
     });
-  
+
   //redraw();
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
-  
+
   lastPlot = "interest";
 }
 
@@ -2324,18 +2303,18 @@ $("#indicadoresBox input").on("change",function(){
 
 $("#interesseBox input").on("change",function(){
   if(lastPlot=="interest"){
-    
+
     var node = d3.select(lastZone);
     node.attr("clicked", 1);
-    
+
     interestPlot();
-    
+
     $(inputID).prop( "checked", true );
   }
 });
 
 function responsivefy(svg) {
-  
+
   var oldWidth = $("#container").width();
 
   const container = d3.select(svg.node().parentNode),
@@ -2346,18 +2325,17 @@ function responsivefy(svg) {
   svg.attr('viewBox', `0 0 ${width} ${height}`)
       .attr('preserveAspectRatio', 'xMinYMid')
       .call(resize);
- 
+
   d3.select(window).on(
-      'resize.' + container.attr('id'), 
+      'resize.' + container.attr('id'),
       resize
   );
- 
+
   function resize() {
       const w = parseInt(container.style('width'));
       scaleResize = w/oldWidth;
       svg.attr('width', w);
       svg.attr('height', Math.round(w / aspect));
   }
-  
-}
 
+}
