@@ -129,7 +129,6 @@ function focusArea(width, height, lnCenter) {
   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 }
 
-
 function setupGradients(listColors){
 
   //listColors is an array like: [[initial_color_1, final_color_1], [initial_color_2, final_color_2], . . . ]
@@ -445,7 +444,6 @@ function clearSearch(){
   });
 }
 
-
 function searchFunction(){
   var input, filter, ul, li, a, i, txtValue;
 
@@ -708,7 +706,6 @@ function centerMap(){
 
 }
 
-
 function move() {
 
   var t = d3.event.translate;
@@ -749,12 +746,10 @@ function move() {
     return 1  / s;
   });
 
-   d3.selectAll(".centroid").style("stroke-width", function() {
+  d3.selectAll(".centroid").style("stroke-width", function() {
     return 1  / s;
   });
-
 }
-
 
 //geo translation on mouse click in map
 function click() {
@@ -786,8 +781,6 @@ function addpoint(longitude, latitude, text) {
     .style("fill", "#fff");
   }
 }
-
-
 
 function fetchJSONFile(path, callback) {
   var httpRequest = new XMLHttpRequest();
@@ -1160,319 +1153,344 @@ $("#destinyTripsBtn").click(function() {
    plotDestinyTrips();
 });
 
+function flowOdData(jsonFile){
+
+  var dataFile;
+
+  if ($("#coletivo").is(":checked") && !$("#individual").is(":checked")) {
+       if ($("#horapico").is(":checked")) {
+         dataFile = jsonFile.TC_PPM;
+       } else {
+         dataFile = jsonFile.TC_total;
+       }
+     }
+     else if ($("#individual").is(":checked") && !$("#coletivo").is(":checked")) {
+       if ($("#horapico").is(":checked")) {
+         dataFile = jsonFile.TI_PPM;
+       } else {
+         dataFile = jsonFile.TI_total;
+       }
+     } else{
+       if ($("#horapico").is(":checked")) {
+         dataFile = jsonFile.TCI_PPM;
+       } else {
+         dataFile = jsonFile.TCI_total;
+       }
+     }
+
+     return dataFile
+}
+
+function createFlowOdPaths(data, max, currentZoom){
+
+  g
+    .selectAll("line")
+    .data(data)
+    .enter()
+    .append("line")
+    .attr("class", "line-centroid")
+    .attr("x1", function(d) {
+    return projection(d[0].originCoord)[0];
+  })
+    .attr("y1", function(d) {
+    return projection(d[0].originCoord)[1];
+  })
+    .attr("x2", function(d) {
+    return projection(d[0].destinyCoord)[0];
+  })
+    .attr("y2", function(d) {
+    return projection(d[0].destinyCoord)[1];
+  })
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", function(d,i) {
+    var ratio = d[1]/max;
+    return ((1 + (10 * ratio))/currentZoom);
+  })
+  .on("mousemove", function(d, i) {
+
+    var mouse = d3.mouse(svg.node()).map(function(d) {
+      return parseInt(d);
+    });
+
+    tooltip
+      .classed("hidden", false)
+      .attr(
+      "style",
+      "left:" +
+      (mouse[0] + offsetL) +
+      "px;top:" +
+      (mouse[1] + offsetT) +
+      "px"
+    );
+
+    tooltipNum
+      .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
+
+    tooltipMunicipio.classed("hidden", true);
+    tooltipZone.classed("hidden", true);
+
+  })
+    .on("mouseout", function(d, i) {
+    tooltip.classed("hidden", true);
+  })
+    .attr("stroke", function(d,i) {
+    var ratio = d[1]/max;
+    var color = baseColorFunctionMin(300, ratio);
+    return color;
+  })
+    .attr("ratio", function(d,i) {
+    var ratio = d[1]/max;
+    return (ratio || 0);
+  });
+}
+
+function createFlowOdCentroids(data, max, currentZoom){
+
+      var centroids = g
+                      .selectAll("circle")
+                      .data(data, function(d){return d})
+                      .enter();
+
+      centroids
+          .append("circle")
+          .attr("class", "centroid")
+          .attr("cx", function(d) {
+          return projection(d[0].originCoord)[0];
+        })
+          .attr("cy", function(d) {
+          return projection(d[0].originCoord)[1];
+        })
+          .attr("r", function(d,i) {
+          var ratio = d[1]/max;
+          var radius =((1 + 15 * ratio/currentZoom));
+          return (radius||0);
+        })
+          .attr("fill",function(d,i) {
+          var ratio = d[1]/max;
+          var color = baseColorFunctionMin(300, ratio);
+          return color;
+        })
+          .attr("ratio", function(d,i) {
+          var ratio = d[1]/max;
+          return (ratio || 0);
+        });
+
+        centroids
+          .append("circle")
+          .attr("class", "centroid")
+          .attr("cx", function(d) {
+          return projection(d[0].destinyCoord)[0];
+        })
+          .attr("cy", function(d) {
+          return projection(d[0].destinyCoord)[1];
+        })
+          .attr("r", function(d,i) {
+          var ratio = d[1]/max;
+          var radius = ((1 + 15 * ratio)/currentZoom);
+          return (radius||0);
+        })
+          .attr("fill",function(d,i) {
+          var ratio = d[1]/max;
+          var color = baseColorFunctionMin(300, ratio);
+          return color;
+        })
+        .on("mousemove", function(d, i) {
+
+          var mouse = d3.mouse(svg.node()).map(function(d) {
+            return parseInt(d);
+          });
+
+          tooltip
+            .classed("hidden", false)
+            .attr(
+            "style",
+            "left:" +
+            (mouse[0] + offsetL) +
+            "px;top:" +
+            (mouse[1] + offsetT) +
+            "px"
+          );
+
+          tooltipNum
+            .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
+
+          tooltipMunicipio.classed("hidden", true);
+          tooltipZone.classed("hidden", true);
+
+        })
+          .on("mouseout", function(d, i) {
+          tooltip.classed("hidden", true);
+        })
+          .attr("ratio", function(d,i) {
+          var ratio = d[1]/max;
+          return (ratio || 0);
+        });
+}
+
+function baseColorArray(){
+  var colorGrad =[];
+
+  for(var i = 0; i < 6; i++){
+    var color = baseColorFunctionMin(300, i/5);
+    colorGrad.push(color);
+  }
+  return colorGrad;
+}
+
+function flowOdLegendLeft(max, colorGrad){
+
+        var legendSVG = d3.select('#container-legend')
+                              .append("svg")
+                              .attr("id","legendLeft")
+                              .attr("width", 600)
+                              .attr("height", height/5);
+
+        var legend = legendSVG.append("g");
+
+            legend.selectAll("circle")
+            .data(colorGrad)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d,i){
+              return (10+ 51*(7-i));
+            })
+            .attr("cy", 35)
+            .attr("r", function(d,i){
+              return(16*(i/5))
+            })
+            .style("stroke", "#ccc")
+            .style("fill", function(d){
+              return d;
+            });
+
+            legend.selectAll("text")
+            .data(colorGrad)
+            .enter()
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", function(d,i){
+              return (52*(7-i) - 12);
+            })
+            .attr("y", 15)
+            .text(function(d,i){
+              if(i){
+                return max*i/5;
+              }
+            })
+            .style("fill",function(d,i){
+              if(i%2){
+                return "#777";
+              }else{
+                return "#666";
+              }
+            });
+
+            legend
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", 0 )
+            .attr("y", 27)
+            .text("nº de viagens")
+            .style("fill","#555");
+
+            legend
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", 0 )
+            .attr("y", 43)
+            .text("intra-zonal")
+            .style("fill","#555");
+}
+
+function flowOdLegendRight(max, colorGrad){
+
+        var legendSVG = d3.select('#container-legend')
+                              .append("svg")
+                              .attr("id","legendRight")
+                              .attr("width", 600)
+                              .attr("height", height/5);
+
+        var legend = legendSVG.append("g");
+
+            legend.selectAll("rect")
+            .data(colorGrad)
+            .enter()
+            .append("rect")
+            .attr("x", function(d,i){
+              return (51*(7-i));
+            })
+            .attr("y", 25)
+            .attr("height", function(d,i){
+              return(2*i)
+            })
+            .attr("width", 40)
+            .style("fill", function(d){
+              return d;
+            });
+
+            legend.selectAll("text")
+            .data(colorGrad)
+            .enter()
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", function(d,i){
+              return (52*(7-i) - 4);
+            })
+            .attr("y", 15)
+            .text(function(d,i){
+              if(i){
+                return max*i/5;
+              }
+            })
+            .style("fill",function(d,i){
+              if(i%2){
+                return "#777";
+              }else{
+                return "#666";
+              }
+            });
+
+            legend
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", 0 )
+            .attr("y", 27)
+            .text("nº de viagens")
+            .style("fill","#555");
+
+            legend
+            .append("text")
+            .attr("font-size", "0.75em")
+            .attr("x", 0 )
+            .attr("y", 43)
+            .text("entre zonas")
+            .style("fill","#555");
+}
+
 function plotFlowOD(){
 
   clearAll();
-
   lastPlot = "flowOD";
 
   d3.json(flowOdURL,
     function(error, jsonFile) {
 
-      var dataFile;
-
-       if ($("#coletivo").is(":checked") && !$("#individual").is(":checked")) {
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TC_PPM;
-            } else {
-              dataFile = jsonFile.TC_total;
-            }
-          }
-          else if ($("#individual").is(":checked") && !$("#coletivo").is(":checked")) {
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TI_PPM;
-            } else {
-              dataFile = jsonFile.TI_total;
-            }
-          } else{
-            if ($("#horapico").is(":checked")) {
-              dataFile = jsonFile.TCI_PPM;
-            } else {
-              dataFile = jsonFile.TCI_total;
-            }
-          }
-
+      var dataFile = flowOdData(jsonFile);
       var shortData = dataFile.slice();
       var max = shortData[0][1];
 
-      g
-        .selectAll("line")
-        .data(shortData)
-        .enter()
-        .append("line")
-        .attr("class", "line-centroid")
-        .attr("x1", function(d) {
-        return projection(d[0].originCoord)[0];
-      })
-        .attr("y1", function(d) {
-        return projection(d[0].originCoord)[1];
-      })
-        .attr("x2", function(d) {
-        return projection(d[0].destinyCoord)[0];
-      })
-        .attr("y2", function(d) {
-        return projection(d[0].destinyCoord)[1];
-      })
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", function(d,i) {
-        var ratio = d[1]/max;
-        return ((1 + (10 * ratio))/currentZoom);
-      })
-      .on("mousemove", function(d, i) {
+      createFlowOdPaths(shortData, max, currentZoom);
+      createFlowOdCentroids(shortData, max, currentZoom);
 
-        var mouse = d3.mouse(svg.node()).map(function(d) {
-          return parseInt(d);
-        });
+      var colorGrad = baseColorArray();
 
-        tooltip
-          .classed("hidden", false)
-          .attr(
-          "style",
-          "left:" +
-          (mouse[0] + offsetL) +
-          "px;top:" +
-          (mouse[1] + offsetT) +
-          "px"
-        );
-
-        tooltipNum
-          .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
-
-        tooltipMunicipio.classed("hidden", true);
-        tooltipZone.classed("hidden", true);
-
-      })
-        .on("mouseout", function(d, i) {
-        tooltip.classed("hidden", true);
-      })
-        .attr("stroke", function(d,i) {
-        var ratio = d[1]/max;
-        var color = baseColorFunctionMin(300, ratio);
-        return color;
-      })
-        .attr("ratio", function(d,i) {
-        var ratio = d[1]/max;
-        return (ratio || 0);
-      });
-
-      var centroids = g
-                      .selectAll("circle")
-                      .data(shortData, function(d){return d})
-                      .enter();
-
-    centroids
-        .append("circle")
-        .attr("class", "centroid")
-        .attr("cx", function(d) {
-        return projection(d[0].originCoord)[0];
-      })
-        .attr("cy", function(d) {
-        return projection(d[0].originCoord)[1];
-      })
-        .attr("r", function(d,i) {
-        var ratio = d[1]/max;
-        var radius =((1 + 15 * ratio/currentZoom));
-        return (radius||0);
-      })
-        .attr("fill",function(d,i) {
-        var ratio = d[1]/max;
-        var color = baseColorFunctionMin(300, ratio);
-        return color;
-      })
-        .attr("ratio", function(d,i) {
-        var ratio = d[1]/max;
-        return (ratio || 0);
-      });
-
-      centroids
-        .append("circle")
-        .attr("class", "centroid")
-        .attr("cx", function(d) {
-        return projection(d[0].destinyCoord)[0];
-      })
-        .attr("cy", function(d) {
-        return projection(d[0].destinyCoord)[1];
-      })
-        .attr("r", function(d,i) {
-        var ratio = d[1]/max;
-        var radius = ((1 + 15 * ratio)/currentZoom);
-        return (radius||0);
-      })
-        .attr("fill",function(d,i) {
-        var ratio = d[1]/max;
-        var color = baseColorFunctionMin(300, ratio);
-        return color;
-      })
-      .on("mousemove", function(d, i) {
-
-        var mouse = d3.mouse(svg.node()).map(function(d) {
-          return parseInt(d);
-        });
-
-        tooltip
-          .classed("hidden", false)
-          .attr(
-          "style",
-          "left:" +
-          (mouse[0] + offsetL) +
-          "px;top:" +
-          (mouse[1] + offsetT) +
-          "px"
-        );
-
-        tooltipNum
-          .html("nº de viagens: <i style='color:#2a2559;'>"+ d[1]+"</i>");
-
-        tooltipMunicipio.classed("hidden", true);
-        tooltipZone.classed("hidden", true);
-
-      })
-        .on("mouseout", function(d, i) {
-        tooltip.classed("hidden", true);
-      })
-        .attr("ratio", function(d,i) {
-        var ratio = d[1]/max;
-        return (ratio || 0);
-      });
-
-      var colorGrad =[];
-
-      for(var i = 0; i < 6; i++){
-        var color = baseColorFunctionMin(300, i/5);
-        colorGrad.push(color);
-      }
-
-      var legendSVGleft = d3.select('#container-legend')
-                            .append("svg")
-                            .attr("id","legendLeft")
-                            .attr("width", 600)
-                            .attr("height", height/5);
-
-      var legendLeft = legendSVGleft.append("g");
-
-          legendLeft.selectAll("circle")
-          .data(colorGrad)
-          .enter()
-          .append("circle")
-          .attr("cx", function(d,i){
-            return (10+ 51*(7-i));
-          })
-          .attr("cy", 35)
-          .attr("r", function(d,i){
-            return(16*(i/5)/currentZoom)
-          })
-          .style("stroke", "#ccc")
-          .style("fill", function(d){
-            return d;
-          });
-
-          legendLeft.selectAll("text")
-          .data(colorGrad)
-          .enter()
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", function(d,i){
-            return (52*(7-i) - 12);
-          })
-          .attr("y", 15)
-          .text(function(d,i){
-            if(i){
-              return max*i/5;
-            }
-          })
-          .style("fill",function(d,i){
-            if(i%2){
-              return "#777";
-            }else{
-              return "#666";
-            }
-          });
-
-          legendLeft
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", 0 )
-          .attr("y", 27)
-          .text("nº de viagens")
-          .style("fill","#555");
-
-          legendLeft
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", 0 )
-          .attr("y", 43)
-          .text("intra-zonal")
-          .style("fill","#555");
-
-
-      var legendSVGright = d3.select('#container-legend')
-                            .append("svg")
-                            .attr("id","legendRight")
-                            .attr("width", 600)
-                            .attr("height", height/5);
-
-      var legendRight = legendSVGright.append("g");
-
-          legendRight.selectAll("rect")
-          .data(colorGrad)
-          .enter()
-          .append("rect")
-          .attr("x", function(d,i){
-            return (51*(7-i));
-          })
-          .attr("y", 25)
-          .attr("height", function(d,i){
-            return(2*i)
-          })
-          .attr("width", 40)
-          .style("fill", function(d){
-            return d;
-          });
-
-          legendRight.selectAll("text")
-          .data(colorGrad)
-          .enter()
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", function(d,i){
-            return (52*(7-i) - 4);
-          })
-          .attr("y", 15)
-          .text(function(d,i){
-            if(i){
-              return max*i/5;
-            }
-          })
-          .style("fill",function(d,i){
-            if(i%2){
-              return "#777";
-            }else{
-              return "#666";
-            }
-          });
-
-          legendRight
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", 0 )
-          .attr("y", 27)
-          .text("nº de viagens")
-          .style("fill","#555");
-
-          legendRight
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", 0 )
-          .attr("y", 43)
-          .text("entre zonas")
-          .style("fill","#555");
-
+      flowOdLegendLeft(max, colorGrad);
+      flowOdLegendRight(max, colorGrad);
   });
 
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
 }
-
 
 function clearAll(){
 
@@ -1604,49 +1622,249 @@ function arrayOD(originArray, destinyArray, odJson) {
   return matrixOD;
 }
 
+function interestPlotParams(mz){
+
+  var filePath;
+  var baseColor;
+  var val1;
+
+  if ($("#destEsp").is(":checked")) {
+
+    var destiny = destinyOD[mz];
+
+    if ($("#horapicoDV").is(":checked")) {
+      val1 = Math.round(100*destiny.TC_total/(destiny.TC_total + destiny.TI_total));
+    } else {
+      val1 = Math.round(100*destiny.TC_PPM/(destiny.TC_PPM + destiny.TI_PPM));
+    }
+
+     baseColor = 380;
+     filePath = zonaOdURL;
+
+   }else{
+
+     var origin = originOD[mz];
+
+     if ($("#horapicoDV").is(":checked")) {
+       val1 = Math.round(100*origin.TC_total/(origin.TC_total + origin.TI_total));
+     } else {
+       val1 = Math.round(100*origin.TC_PPM/(origin.TC_PPM + origin.TI_PPM));
+     }
+
+     baseColor = 250;
+     filePath = zonaArrayURL;
+   }
+
+   return [filePath, baseColor, val1]
+}
+
+function interestPaths(mz, data, coords, ratios, baseColor){
+
+  g
+  .selectAll("line")
+  .data(data)
+  .enter()
+  .append("line")
+  .attr("class", "line-centroid")
+  .attr("x1", function(d) {
+    return projection(coords)[0];
+  })
+  .attr("y1", function(d) {
+    return projection(coords)[1];
+  })
+  .attr("x2", function(d) {
+    if (d.destiny != "self" && d.coordinates) {
+      return projection(d.coordinates)[0];
+    }
+  })
+  .attr("y2", function(d) {
+    if (d.destiny != "self" && d.coordinates) {
+      return projection(d.coordinates)[1];
+    }
+  })
+  .on("mousemove", function(d, i) {
+
+    var mouse = d3.mouse(svg.node()).map(function(d) {
+      return parseInt(d);
+    });
+
+    tooltip
+      .classed("hidden", false)
+      .attr(
+      "style",
+      "left:" +
+      (mouse[0] + offsetL) +
+      "px;top:" +
+      (mouse[1] + offsetT) +
+      "px"
+    );
+
+    tooltipNum
+      .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
+
+    tooltipMunicipio.classed("hidden", true);
+    tooltipZone.classed("hidden", true);
+
+  })
+    .on("mouseout", function(d, i) {
+    tooltip.classed("hidden", true);
+  })
+  .attr("stroke-linecap", "round")
+  .attr("stroke-width", function(d,i) {
+    return (10 * ratios[i]);
+  })
+  .attr("stroke", function(d,i) {
+    var color = baseColorFunction(baseColor, ratios[i]);
+    return color;
+  })
+  .attr("ratio", function(d,i) {
+    return (ratios[i] || 0);
+  });
+}
+
+function interestCentroids(mz, data, coords, ratios, baseColor){
+
+    g
+    .selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "centroid")
+    .attr("cx", function(d) {
+      if (d.destiny != "self" && d.coordinates) {
+        return projection(d.coordinates)[0];
+      }
+    })
+    .attr("cy", function(d) {
+      if (d.destiny != "self" && d.coordinates) {
+        return projection(d.coordinates)[1];
+      }
+    })
+    .attr("r", function(d,i) {
+      var radius = 16 * ratios[i];
+      return (radius||0);
+    })
+    .on("mousemove", function(d, i) {
+
+      var mouse = d3.mouse(svg.node()).map(function(d) {
+        return parseInt(d);
+      });
+
+      tooltip
+        .classed("hidden", false)
+        .attr(
+        "style",
+        "left:" +
+        (mouse[0] + offsetL) +
+        "px;top:" +
+        (mouse[1] + offsetT) +
+        "px"
+      );
+
+      tooltipNum
+        .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
+
+      tooltipMunicipio.classed("hidden", true);
+      tooltipZone.classed("hidden", true);
+
+    })
+      .on("mouseout", function(d, i) {
+      tooltip.classed("hidden", true);
+    })
+    .attr("fill",function(d,i) {
+        var color = baseColorFunction(baseColor, ratios[i]);
+        if(mz == d.destiny){
+             color = "url(#svgGradient4)"
+          }
+        return color;
+    })
+    .style("stroke", function(d,i){
+      if(mz == d.destiny){
+             return baseColorFunction(baseColor, ratios[i]);
+          }
+    })
+    .style("stroke-width", function(d,i){
+        if(mz == d.destiny){
+               return 1;
+            }
+    })
+    .attr("ratio", function(d,i) {
+        return (ratios[i] || 0);
+    });
+}
+
+function interestLegendLeft(max, colorGrad){
+  var legendSVG = d3.select('#container-legend')
+                      .append("svg")
+                      .attr("id","legendLeft")
+                      .attr("width", 600)
+                      .attr("height", height/5);
+
+  var legend = legendSVG.append("g");
+
+  legend.selectAll("circle")
+  .data(colorGrad)
+  .enter()
+  .append("circle")
+  .attr("cx", function(d,i){
+    return (10+ 51*(7-i));
+  })
+  .attr("cy", 35)
+  .attr("r", function(d,i){
+    return(16*(i/5))
+  })
+  .style("stroke", "#ccc")
+  .style("fill", function(d){
+    return d;
+  });
+
+  legend.selectAll("text")
+  .data(colorGrad)
+  .enter()
+  .append("text")
+  .attr("font-size", "0.75em")
+  .attr("x", function(d,i){
+    return (51*(7-i));
+  })
+  .attr("y", 15)
+  .text(function(d,i){
+    if(i){
+      return (Math.round((i/5)*max));
+    }
+  })
+  .style("fill",function(d,i){
+    if(i%2){
+      return "#888";
+    }else{
+      return "#666";
+    }
+  });
+
+  legend
+  .append("text")
+  .attr("font-size", "0.75em")
+  .attr("x", function(){
+    return (30);
+  })
+  .attr("y", 35)
+  .text("viagens")
+  .style("fill","#888");
+}
+
 function interestPlot(){
 
-  $( ".centroid" ).remove();
-  $( ".line-centroid" ).remove();
+  clearAll();
 
   var fileURL = "";
   $(".macrozona").each(function() {
     if ($(this).attr("clicked") > 0) {
 
-      var val1 = 0;
       var mz = $(this).attr("macrozona").toString();
       var mzName = " "+$(this).attr("title").toString()+" : "+ $(this).attr("macrozona").toString()+" - ";
-      var baseColor;
-      var filePath = '';
-
-      // creating the legend
-
-       if ($("#destEsp").is(":checked")) {
-
-         var destiny = destinyOD[mz];
-
-         if ($("#horapicoDV").is(":checked")) {
-           val1 = Math.round(100*destiny.TC_total/(destiny.TC_total + destiny.TI_total));
-         } else {
-           val1 = Math.round(100*destiny.TC_PPM/(destiny.TC_PPM + destiny.TI_PPM));
-         }
-
-          baseColor = 380;
-          filePath = zonaOdURL;
-
-        }else{
-
-          var origin = originOD[mz];
-
-          if ($("#horapicoDV").is(":checked")) {
-            val1 = Math.round(100*origin.TC_total/(origin.TC_total + origin.TI_total));
-          } else {
-            val1 = Math.round(100*origin.TC_PPM/(origin.TC_PPM + origin.TI_PPM));
-          }
-
-          baseColor = 250;
-          filePath = zonaArrayURL;
-        }
+      var interestParams = interestPlotParams(mz);
+      var filePath = interestParams[0];
+      var baseColor = interestParams[1];
+      var val1 = interestParams[2] || 0;
 
       if($("#container-legend svg").length){
         $("#container-legend svg").remove();
@@ -1654,9 +1872,7 @@ function interestPlot(){
 
       var val2 = 100-val1;
 
-      // creating the main representation
-
-      d3.json(filePath,function(error, jsonFile) {
+      d3.json(filePath, function(error, jsonFile) {
 
           var dataFile = jsonFile[mz];
 
@@ -1712,134 +1928,8 @@ function interestPlot(){
           //correcting an error
           dataFile.shift();
 
-          g
-          .selectAll("line")
-          .data(dataFile)
-          .enter()
-          .append("line")
-          .attr("class", "line-centroid")
-          .attr("x1", function(d) {
-            return projection(coords)[0];
-          })
-          .attr("y1", function(d) {
-            return projection(coords)[1];
-          })
-          .attr("x2", function(d) {
-            if (d.destiny != "self" && d.coordinates) {
-              return projection(d.coordinates)[0];
-            }
-          })
-          .attr("y2", function(d) {
-            if (d.destiny != "self" && d.coordinates) {
-              return projection(d.coordinates)[1];
-            }
-          })
-          .on("mousemove", function(d, i) {
-
-            var mouse = d3.mouse(svg.node()).map(function(d) {
-              return parseInt(d);
-            });
-
-            tooltip
-              .classed("hidden", false)
-              .attr(
-              "style",
-              "left:" +
-              (mouse[0] + offsetL) +
-              "px;top:" +
-              (mouse[1] + offsetT) +
-              "px"
-            );
-
-            tooltipNum
-              .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
-
-            tooltipMunicipio.classed("hidden", true);
-            tooltipZone.classed("hidden", true);
-
-          })
-            .on("mouseout", function(d, i) {
-            tooltip.classed("hidden", true);
-          })
-          .attr("stroke-linecap", "round")
-          .attr("stroke-width", function(d,i) {
-            return (10 * ratios[i]);
-          })
-          .attr("stroke", function(d,i) {
-            var color = baseColorFunction(baseColor, ratios[i]);
-            return color;
-          })
-          .attr("ratio", function(d,i) {
-            return (ratios[i] || 0);
-          });
-
-          g
-          .selectAll("circle")
-          .data(dataFile)
-          .enter()
-          .append("circle")
-          .attr("class", "centroid")
-          .attr("cx", function(d) {
-            if (d.destiny != "self" && d.coordinates) {
-              return projection(d.coordinates)[0];
-            }
-          })
-          .attr("cy", function(d) {
-            if (d.destiny != "self" && d.coordinates) {
-              return projection(d.coordinates)[1];
-            }
-          })
-          .attr("r", function(d,i) {
-            var radius = 16 * ratios[i];
-            return (radius||0);
-          })
-          .on("mousemove", function(d, i) {
-
-            var mouse = d3.mouse(svg.node()).map(function(d) {
-              return parseInt(d);
-            });
-
-            tooltip
-              .classed("hidden", false)
-              .attr(
-              "style",
-              "left:" +
-              (mouse[0] + offsetL) +
-              "px;top:" +
-              (mouse[1] + offsetT) +
-              "px"
-            );
-
-            tooltipNum
-              .html("nº de viagens: <i style='color:#2a2559;'>"+ Math.round(ratios[i]*max)+"</i>");
-
-            tooltipMunicipio.classed("hidden", true);
-            tooltipZone.classed("hidden", true);
-
-          })
-            .on("mouseout", function(d, i) {
-            tooltip.classed("hidden", true);
-          })
-          .attr("fill",function(d,i) {
-              var color = baseColorFunction(baseColor, ratios[i]);
-              if(mz == d.destiny){
-                   color = "url(#svgGradient4)"
-                }
-              return color;
-          })
-          .style("stroke", function(d,i){
-            if(mz == d.destiny){
-                   return baseColorFunction(baseColor, ratios[i]);
-                }
-          })
-          .style("stroke-width", function(d,i){
-              if(mz == d.destiny){
-                     return 1;
-                  }
-          })
-          .attr("ratio", function(d,i) {
-              return (ratios[i] || 0);
-          });
+          interestPaths(mz, dataFile, coords, ratios, baseColor);
+          interestCentroids(mz, dataFile, coords, ratios, baseColor);
 
           var colorGrad =[];
 
@@ -1848,69 +1938,15 @@ function interestPlot(){
             colorGrad.push(color);
           }
 
+          interestLegendLeft(max, colorGrad);
+
           var legendSVGright = d3.select('#container-legend')
                             .append("svg")
                             .attr("id","legendRight")
                             .attr("width",600)
                             .attr("height", height/5);
 
-          zoneLegend(mzName, legendSVGright,val1, val2);
-
-          var legendSVGleft = d3.select('#container-legend')
-                              .append("svg")
-                              .attr("id","legendLeft")
-                              .attr("width", 600)
-                              .attr("height", height/5);
-
-          var legendLeft = legendSVGleft.append("g");
-
-          legendLeft.selectAll("circle")
-          .data(colorGrad)
-          .enter()
-          .append("circle")
-          .attr("cx", function(d,i){
-            return (10+ 51*(7-i));
-          })
-          .attr("cy", 35)
-          .attr("r", function(d,i){
-            return(16*(i/5))
-          })
-          .style("stroke", "#ccc")
-          .style("fill", function(d){
-            return d;
-          });
-
-          legendLeft.selectAll("text")
-          .data(colorGrad)
-          .enter()
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", function(d,i){
-            return (51*(7-i));
-          })
-          .attr("y", 15)
-          .text(function(d,i){
-            if(i){
-              return (Math.round((i/5)*max));
-            }
-          })
-          .style("fill",function(d,i){
-            if(i%2){
-              return "#888";
-            }else{
-              return "#666";
-            }
-          });
-
-          legendLeft
-          .append("text")
-          .attr("font-size", "0.75em")
-          .attr("x", function(){
-            return (30);
-          })
-          .attr("y", 35)
-          .text("viagens")
-          .style("fill","#888");
+          zoneLegend(mzName, legendSVGright, val1, val2);
 
         });
       }
@@ -1921,7 +1957,6 @@ function interestPlot(){
 
   lastPlot = "interest";
 }
-
 
 function plotMatrix(){
   if ($("table").length != 0) {
@@ -2111,7 +2146,6 @@ function selectAllAsDestiny(thisElement){
     selectAsDestiny(node);
   });
 }
-
 
 function scrollToLi(elementID) {
   var elmnt = document.getElementById(elementID);
