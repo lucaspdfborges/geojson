@@ -235,9 +235,11 @@ function selectAsOrigin(node){
       node.style("fill", "rgba(219,220,222,0.5)");
     }
 
-   var nextBlock = $("#destino-block");
-                  nextBlock.fadeTo(200, 1.0);
-                  nextBlock.show();
+    var nextBlock = $("#destino-block");
+    if(nextBlock.is(":hidden")){
+      nextBlock.fadeTo(200, 1.0);
+      nextBlock.show();
+    }
 }
 
 function selectAsDestiny(node){
@@ -257,9 +259,11 @@ function selectAsDestiny(node){
       node.style("fill", "rgba(219,220,222,0.5)");
     }
 
-  var nextBlock =  $("#destino-block").parent(".grid-container").find(".container-block").last();
-  nextBlock.fadeTo(200, 1.0);
-  nextBlock.show();
+    var nextBlock = $("#destino-block").parent(".grid-container").find(".container-block").last();
+    if(nextBlock.is(":hidden")){
+      nextBlock.fadeTo(200, 1.0);
+      nextBlock.show();
+    }
 }
 
 
@@ -524,11 +528,141 @@ function lagos(jsonFile) {
   .style("fill", "#bcd8e8");
 }
 
+function zoneMouseMove(node,d){
+
+    var mouse = d3.mouse(svg.node()).map(function(dMouse) {
+      return parseInt(dMouse*scaleResize);
+    });
+
+    tooltip
+    .classed("hidden", false)
+    .attr(
+      "style",
+      "left:" +
+      (mouse[0] + offsetL) +
+      "px;top:" +
+      (mouse[1] + offsetT) +
+      "px"
+    );
+
+    tooltipZone
+    .classed("hidden", false)
+    .html(d.properties.RA_NOME);
+
+    tooltipNum
+    .classed("hidden", false)
+    .html("zona: <i style='color:#2a2559;'>#"+ d.properties.MACROZONA+"</i> | Área <i style='color:#2a2559;'>"+ Math.round(d.properties.AREA) +"</i> km²");
+
+    let nodeValue = node.attr("plottedValue");
+
+    if(lastPlot=="destinyTrips" || lastPlot=="originTrips"){
+      tooltipMunicipio
+        .classed("hidden", false)
+        .html("nº de viagens: <i style='color:#2a2559;'>"+ nodeValue +"</i> ");
+    }else{
+         tooltipMunicipio
+        .classed("hidden", false)
+        .html(d.properties.MUNICIPIO_);
+    }
+}
+
+function zoneMouseOut(){
+  tooltip.classed("hidden", true);
+}
+
+function zoneClickOdBox(node, d){
+  if($("#horapico").is(":checked") || $("#total").is(":checked")){
+
+    if(mouseSelectorOD=="origin"){
+
+      if(!$("#MZ_O_"+d.properties.MACROZONA).is(":checked")){
+           $("#MZ_O_"+d.properties.MACROZONA).prop( "checked", true );
+            scrollToLi("MZ_O_"+d.properties.MACROZONA);
+          }else{
+          $("#MZ_O_"+d.properties.MACROZONA).prop( "checked", false );
+       }
+
+      selectAsOrigin(node);
+
+    } else if(mouseSelectorOD=="destiny"){
+      if(!$("#MZ_D_"+d.properties.MACROZONA).is(":checked")){
+           $("#MZ_D_"+d.properties.MACROZONA).prop( "checked", true );
+           scrollToLi("MZ_D_"+d.properties.MACROZONA);
+          }else{
+          $("#MZ_D_"+d.properties.MACROZONA).prop( "checked", false );
+       }
+
+      selectAsDestiny(node);
+    }
+  }
+}
+
+function zoneClickInteresseBox(node, d){
+  selectAsZone(node);
+  scrollToLi("MZ_Z_"+d.properties.MACROZONA);
+  lastZone = "#MZ_" + d.properties.ID;
+
+  //TODO change
+  if(lastPlot=="interest"){
+    interestPlot();
+    var inputID = "#MZ_Z_"+node.attr("macrozona");
+    $(inputID).prop( "checked", true );
+  }
+}
+
+function zoneClickIndicadoresBox(node){
+
+  var value = node.attr("title");
+  if($("#container-legend svg").length){
+       $("#mode-distribution").remove();
+
+        var val1 = 0;
+
+        if(lastPlot=="originTrips"){
+           var origin = originOD[node.attr("macrozona")];
+
+           if ($("#horapico").is(":checked")) {
+             val1 = Math.round(100*origin.TC_total/(origin.TC_total + origin.TI_total));
+            } else {
+              val1 = Math.round(100*origin.TC_PPM/(origin.TC_PPM + origin.TI_PPM));
+            }
+
+        }else if(lastPlot=="destinyTrips"){
+           var destiny = destinyOD[node.attr("macrozona")];
+          if ($("#horapico").is(":checked")) {
+             val1 = Math.round(100*destiny.TC_total/(destiny.TC_total + destiny.TI_total));
+            } else {
+              val1 = Math.round(100*destiny.TC_PPM/(destiny.TC_PPM + destiny.TI_PPM));
+            }
+        }
+
+        var val2 = 100-val1;
+        zoneLegend("",legendSVGright,val1, val2);
+  }
+}
+
+function zoneClick(node, d){
+
+    let nodeClicked = node.attr("clicked");
+
+    if($("#origemDestinoBox").attr("class")=="grid-container"){
+      zoneClickOdBox(node, d);
+
+    }else if($("#interesseBox").attr("class")=="grid-container"){
+      zoneClickInteresseBox(node, d);
+
+    } else if($("#indicadoresBox").attr("class")=="grid-container"){
+      zoneClickIndicadoresBox(node);
+    }
+
+    node.attr("clicked", 1 - nodeClicked);
+}
+
 function draw(topo) {
 
-  var country = g.selectAll(".macrozona").data(topo);
+  var trafficZone = g.selectAll(".macrozona").data(topo);
 
-  country
+  trafficZone
   .enter()
   .insert("path")
   .attr("class", "macrozona")
@@ -552,153 +686,19 @@ function draw(topo) {
   });
 
   //tooltips
-  country
+  trafficZone
   .on("mousemove", function(d, i) {
-
-    var mouse = d3.mouse(svg.node()).map(function(d) {
-      return parseInt(d*scaleResize);
-    });
-
-    tooltip
-    .classed("hidden", false)
-    .attr(
-      "style",
-      "left:" +
-      (mouse[0] + offsetL) +
-      "px;top:" +
-      (mouse[1] + offsetT) +
-      "px"
-    );
-
-    tooltipZone
-    .classed("hidden", false)
-    .html(d.properties.RA_NOME);
-
-    tooltipNum
-    .classed("hidden", false)
-    .html("zona: <i style='color:#2a2559;'>#"+ d.properties.MACROZONA+"</i> | Área <i style='color:#2a2559;'>"+ Math.round(d.properties.AREA) +"</i> km²");
-
     let node = d3.select(this);
-    let nodeValue = node.attr("plottedValue");
-
-    if(lastPlot=="destinyTrips" || lastPlot=="originTrips"){
-      tooltipMunicipio
-        .classed("hidden", false)
-        .html("nº de viagens: <i style='color:#2a2559;'>"+ nodeValue +"</i> ");
-    }else{
-         tooltipMunicipio
-        .classed("hidden", false)
-        .html(d.properties.MUNICIPIO_);
-    }
-
+    zoneMouseMove(node, d);
   })
   .on("mouseout", function(d, i) {
-    tooltip.classed("hidden", true);
+    zoneMouseOut();
   })
   .on("click", function(d) {
     let node = d3.select(this);
-    let nodeClicked = node.attr("clicked");
-
-    // TODO:  use conditional
-    if($("#origemDestinoBox").attr("class")=="grid-container"){
-
-      if($("#horapico").is(":checked") || $("#total").is(":checked")){
-
-        if(mouseSelectorOD=="origin"){
-
-          if(!$("#MZ_O_"+d.properties.MACROZONA).is(":checked")){
-               $("#MZ_O_"+d.properties.MACROZONA).prop( "checked", true );
-                node.attr("isOrigin",1);
-                scrollToLi("MZ_O_"+d.properties.MACROZONA);
-              }else{
-              $("#MZ_O_"+d.properties.MACROZONA).prop( "checked", false );
-               node.attr("isOrigin",0);
-           }
-
-          var nextBlock = $("#destino-block");
-          if(nextBlock.is(":hidden")){
-            nextBlock.fadeTo(200, 1.0);
-            nextBlock.show();
-          }
-
-        } else if(mouseSelectorOD=="destiny"){
-          if(!$("#MZ_D_"+d.properties.MACROZONA).is(":checked")){
-               $("#MZ_D_"+d.properties.MACROZONA).prop( "checked", true );
-               node.attr("isDestiny",1);
-               scrollToLi("MZ_D_"+d.properties.MACROZONA);
-              }else{
-              $("#MZ_D_"+d.properties.MACROZONA).prop( "checked", false );
-              node.attr("isDestiny",0);
-           }
-
-          var nextBlock = $("#destino-block").parent(".grid-container").find(".container-block").last();
-          if(nextBlock.is(":hidden")){
-            nextBlock.fadeTo(200, 1.0);
-            nextBlock.show();
-          }
-        }
-
-       let isDestiny =  $("#MZ_D_"+d.properties.MACROZONA).is(":checked");
-       let isOrigin =  $("#MZ_O_"+d.properties.MACROZONA).is(":checked");
-
-        if(isDestiny && !isOrigin){
-          node.style("fill", "url(#svgGradient1)");
-        }else if(!isDestiny && isOrigin){
-          node.style("fill", "url(#svgGradient2)");
-        } else if(isDestiny && isOrigin){
-           node.style("fill", "url(#svgGradient3)");
-        } else{
-          node.style("fill", "rgba(219,220,222,0.5)");
-        }
-      }
-
-    }else if($("#interesseBox").attr("class")=="grid-container"){
-
-      selectAsZone(node);
-      scrollToLi("MZ_Z_"+d.properties.MACROZONA);
-      lastZone = "#MZ_" + d.properties.ID;
-
-      //TODO change
-      if(lastPlot=="interest"){
-        interestPlot();
-        var inputID = "#MZ_Z_"+node.attr("macrozona");
-        $(inputID).prop( "checked", true );
-      }
-
-    } else if($("#indicadoresBox").attr("class")=="grid-container"){
-      var value = node.attr("title");
-      if($("#container-legend svg").length){
-           $("#mode-distribution").remove();
-
-            var val1 = 0;
-
-            if(lastPlot=="originTrips"){
-               var origin = originOD[node.attr("macrozona")];
-
-               if ($("#horapico").is(":checked")) {
-                 val1 = Math.round(100*origin.TC_total/(origin.TC_total + origin.TI_total));
-                } else {
-                  val1 = Math.round(100*origin.TC_PPM/(origin.TC_PPM + origin.TI_PPM));
-                }
-
-            }else if(lastPlot=="destinyTrips"){
-               var destiny = destinyOD[node.attr("macrozona")];
-              if ($("#horapico").is(":checked")) {
-                 val1 = Math.round(100*destiny.TC_total/(destiny.TC_total + destiny.TI_total));
-                } else {
-                  val1 = Math.round(100*destiny.TC_PPM/(destiny.TC_PPM + destiny.TI_PPM));
-                }
-            }
-
-            var val2 = 100-val1;
-            zoneLegend("",legendSVGright,val1, val2);
-      }
-    }
-
-    node.attr("clicked", 1 - nodeClicked);
+    zoneClick(node, d);
   });
 }
-
 
 function centerMap(){
 
@@ -734,7 +734,7 @@ function move() {
   zoom.translate(t);
   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 
-  //adjust the country hover stroke width based on zoom level
+  //adjust the trafficZone hover stroke width based on zoom level
   d3.selectAll(".macrozona").style("stroke-width", 2 / s);
   d3.selectAll(".verde").style("stroke-width", 1.5 / s);
   d3.selectAll(".lagos").style("stroke-width", 1.5 / s);
