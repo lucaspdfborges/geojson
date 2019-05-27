@@ -27,10 +27,16 @@ const zonasJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/mast
 const lagosJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json"
 const origemOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json"
 const destinoOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json"
+const nomeIdZonaCenterJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/NOME_ID_MCZ_CENTER_name_sorted.json"
+const flowOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json"
+const zonaOdJSON =  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array_do.json"
+const zonaArrayJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array.json"
+const macrozonaOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/macrozona_od.json"
 
 const mapCenter = [-47.797089, -15.77526];
 
 var listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(220, 30%, 60%, 0.95)", "hsla(170, 30%, 60%, 0.95)"],["hsla(230, 35%, 55%, 0.95)", "hsla(310, 35%, 55%, 0.95)"],["#FFF", "#DDD"]]
+
 var gradientsArray = [];
 
 let totalSum = 0;
@@ -41,6 +47,7 @@ manchaTopo,
 eixosTopo,
 originOD,
 destinyOD,
+nomeIdZonaCenter,
 projection,
 path,
 svg,
@@ -71,16 +78,8 @@ var tooltipNum = tooltip
                 .append("p")
                 .attr("class","tooltipNum");
 
-var offsetL = document.getElementById("container").offsetLeft + 20;
-var offsetT = document.getElementById("container").offsetTop + 10;
-
-d3.select(window).on("resize", throttle);
-
-var throttleTimer;
-function throttle() {
-  offsetL = document.getElementById("container").offsetLeft + 20;
-  offsetT = document.getElementById("container").offsetTop + 10;
-}
+offsetL =  20;
+offsetT =  10;
 
 setup(width, height);
 
@@ -163,6 +162,7 @@ d3.queue(2)
     .defer(d3.json, lagosJSON)
     .defer(d3.json, origemOdJSON)
     .defer(d3.json, destinoOdJSON)
+    .defer(d3.json, nomeIdZonaCenterJSON)
     .awaitAll(loadedJSONs);
 
 function loadedJSONs(error, results){
@@ -171,18 +171,18 @@ function loadedJSONs(error, results){
    ambienteTopo = topojson.feature(results[0], results[0].objects.verde).features;
    manchaTopo = topojson.feature(results[1], results[1].objects.manchaurbana).features;
    eixosTopo = topojson.feature(results[2], results[2].objects.eixo).features;
-   topo = topojson.feature(results[3], results[3].objects.MacrozonasDF)
-   .features;
-   lagosTopo = topojson.feature(results[4], results[4].objects.Lagos)
-   .features;
+   topo = topojson.feature(results[3], results[3].objects.MacrozonasDF).features;
+   lagosTopo = topojson.feature(results[4], results[4].objects.Lagos).features;
    originOD = results[5];
    destinyOD = results[6];
+   nomeIdZonaCenter = results[7];
 
    ambiente(ambienteTopo);
    mancha(manchaTopo);
    eixo(eixosTopo);
    draw(topo);
    lagos(lagosTopo);
+   generateZoneLists(nomeIdZonaCenter);
 }
 
 function selectAsZone(node){
@@ -257,175 +257,180 @@ function selectAsDestiny(node){
       node.style("fill", "rgba(219,220,222,0.5)");
     }
 
-   var nextBlock =  $("#destino-block").parent(".grid-container").find(".container-block").last();
+  var nextBlock =  $("#destino-block").parent(".grid-container").find(".container-block").last();
   nextBlock.fadeTo(200, 1.0);
   nextBlock.show();
 }
 
-d3.json("https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/NOME_ID_MCZ_CENTER_name_sorted.json",
-function(error, jsonFile) {
 
-  var blockZona = d3.select('#zona-url');
-   var lisZona =  blockZona.selectAll('li')
-                                .data(jsonFile.data)
-                                .enter()
-                                .append('li');
+function generateInterestList(jsonFile){
+  var block = d3.select('#zona-url');
 
-   lisZona
-              .append('input')
-              .attr("type", "radio")
-              .attr("name", "zn")
-              .on("click", function(d,i){
-                  var node =  d3.select("#MZ_"+d.ID);
-                  selectAsZone(node);
-
-                  // free the next block
-                  var thisBlock = $("#zona-block");
-                  thisBlock.css("border-left","2px solid #e6e4ec");
-
-              })
-              .attr("id", function(d,i){
-                  return "MZ_Z_" + d.MACROZONA;
-              });
-
-  lisZona
-              .append('label')
-              .attr("for", function(d,i){
-                  return "MZ_Z_" + d.MACROZONA;
-              })
-              .html(function(d){
-                var text = d.RA_NOME + " : " + d.MACROZONA;
-                return text;
-              });
-
-
-   var blockOrigem = d3.select('#origem-url');
-   var lisOrigem =  blockOrigem.selectAll('li')
-                                .data(jsonFile.data)
-                                .enter()
-                                .append('li');
-
-   lisOrigem
-              .append('input')
-              .attr("type", "checkbox")
-              .on("click", function(d,i){
-                  var node =  d3.select("#MZ_"+d.ID);
-                  selectAsOrigin(node);
-
-                  // free the next block
-                  var thisBlock = $("#origem-block");
-                  thisBlock.css("border-left","2px solid #e6e4ec");
-
-
-              })
-              .attr("id", function(d,i){
-                  return "MZ_O_" + d.MACROZONA;
-              });
-
-  lisOrigem
-              .append('label')
-              .attr("for", function(d,i){
-                  return "MZ_O_" + d.MACROZONA;
-              })
-              .html(function(d){
-                var text = d.RA_NOME + " : " + d.MACROZONA;
-                return text;
-              });
-
-
-   var blockDestino = d3.select('#destino-url');
-    var lisDestino =  blockDestino.selectAll('li')
-                                .data(jsonFile.data)
-                                .enter()
-                                .append('li');
-
-   lisDestino
-              .append('input')
-              .attr("type", "checkbox")
-              .on("click", function(d,i){
-                 var node =  d3.select("#MZ_"+d.ID);
-                 selectAsDestiny(node);
-
-                 // free the next block
-                 var thisBlock = $("#destino-block");
-                 thisBlock.css("border-left","2px solid #e6e4ec");
-
-
-              })
-              .attr("id", function(d,i){
-                  return "MZ_D_" + d.MACROZONA;
-              });
-
-  lisDestino
-              .append('label')
-              .attr("for", function(d,i){
-                  return "MZ_D_" + d.MACROZONA;
-              })
-              .html(function(d){
-                var text = d.RA_NOME + " : " + d.MACROZONA;
-                return text;
-              });
-
- // " <input type="checkbox" value="TC" id="coletivo"> <label for="coletivo">Coletivo</label>"
-
-  var ul = d3.select('#search-wrapper').append('ul').attr("id","search-url");
-
-  ul.selectAll('li')
+  var list =  block.selectAll('li')
   .data(jsonFile.data)
   .enter()
-  .append('li')
+  .append('li');
+
+  list
+  .append('input')
+  .attr("type", "radio")
+  .attr("name", "zn")
+  .on("click", function(d,i){
+    var node =  d3.select("#MZ_"+d.ID);
+    selectAsZone(node);
+
+    // free the next block
+    var thisBlock = $("#zona-block");
+    thisBlock.css("border-left","2px solid #e6e4ec");
+
+  })
   .attr("id", function(d,i){
-       return "search_ID_" + d.ID;
-   })
-  .on("mousemove", function(d,i){
-    let node = d3.select("#MZ_"+d.ID);
+    return "MZ_Z_" + d.MACROZONA;
+  });
 
-    //TODO implement
-     node.style("stroke","#779");
-     node.style("stroke-width","3");
-   })
-  .on("mouseout", function(d, i) {
-     let node = d3.select("#MZ_"+d.ID);
-     node.style("stroke","");
-     node.style("stroke-width","");
+  list
+  .append('label')
+  .attr("for", function(d,i){
+    return "MZ_Z_" + d.MACROZONA;
   })
-  .on("click",function(d){
-
-    $("#search").val(d.RA_NOME + " : " + d.MACROZONA);
-    $("#search-wrapper li").hide();
-
-    width = document.getElementById("container").offsetWidth;
-    height = width * 0.55;
-    focusArea(width, height, d.center);
-
-    setupGradients(listColors);
-    mancha(manchaTopo);
-    ambiente(ambienteTopo);
-    eixo(eixosTopo);
-    draw(topo);
-    d3.selectAll(".eixo").style("stroke-width", 0.3);
-    lagos(lagosTopo);
-
-    var mzID = "#MZ_"+d.ID;
-    //TODO implement rest
-    $(".macrozona").each(function() {
-      $(this).css("stroke", "");
-      $(this).css("stroke-width", "");
-    });
-
-    $(mzID).attr("stroke","#A53");
-    $(mzID).attr("stroke-width","2");
-
-  })
-  .append('a')
   .html(function(d){
     var text = d.RA_NOME + " : " + d.MACROZONA;
     return text;
   });
-});
 
-$("#clear-search").on("click",function(){
+}
 
+function generateOriginList(jsonFile){
+  var block = d3.select('#origem-url');
+  var list =  block.selectAll('li')
+  .data(jsonFile.data)
+  .enter()
+  .append('li');
+
+  list
+  .append('input')
+  .attr("type", "checkbox")
+  .on("click", function(d,i){
+    var node =  d3.select("#MZ_"+d.ID);
+    selectAsOrigin(node);
+
+    // free the next block
+    var thisBlock = $("#origem-block");
+    thisBlock.css("border-left","2px solid #e6e4ec");
+
+  })
+  .attr("id", function(d,i){
+    return "MZ_O_" + d.MACROZONA;
+  });
+
+  list
+  .append('label')
+  .attr("for", function(d,i){
+    return "MZ_O_" + d.MACROZONA;
+  })
+  .html(function(d){
+    var text = d.RA_NOME + " : " + d.MACROZONA;
+    return text;
+  });
+}
+
+function generateDestinyList(jsonFile){
+
+  var block = d3.select('#destino-url');
+
+  var list =  block.selectAll('li')
+  .data(jsonFile.data)
+  .enter()
+  .append('li');
+
+  list
+  .append('input')
+  .attr("type", "checkbox")
+  .on("click", function(d,i){
+    var node =  d3.select("#MZ_"+d.ID);
+    selectAsDestiny(node);
+
+    // free the next block
+    var thisBlock = $("#destino-block");
+    thisBlock.css("border-left","2px solid #e6e4ec");
+
+  })
+  .attr("id", function(d,i){
+    return "MZ_D_" + d.MACROZONA;
+  });
+
+  list
+  .append('label')
+  .attr("for", function(d,i){
+    return "MZ_D_" + d.MACROZONA;
+  })
+  .html(function(d){
+    var text = d.RA_NOME + " : " + d.MACROZONA;
+    return text;
+  });
+}
+
+function generateSearchList(jsonFile){
+
+        var ul = d3.select('#search-wrapper').append('ul').attr("id","search-url");
+
+        ul.selectAll('li')
+        .data(jsonFile.data)
+        .enter()
+        .append('li')
+        .attr("id", function(d,i){
+          return "search_ID_" + d.ID;
+        })
+        .on("mousemove", function(d,i){
+          let node = d3.select("#MZ_"+d.ID);
+
+          //TODO implement
+          node.style("stroke","#779");
+          node.style("stroke-width","3");
+        })
+        .on("mouseout", function(d, i) {
+          let node = d3.select("#MZ_"+d.ID);
+          node.style("stroke","");
+          node.style("stroke-width","");
+        })
+        .on("click",function(d){
+
+          $("#search").val(d.RA_NOME + " : " + d.MACROZONA);
+          $("#search-wrapper li").hide();
+
+          width = document.getElementById("container").offsetWidth;
+          height = width * 0.55;
+          focusArea(width, height, d.center);
+
+          d3.selectAll(".eixo").style("stroke-width", 0.3);
+
+          var mzID = "#MZ_"+d.ID;
+          //TODO implement rest
+          $(".macrozona").each(function() {
+            $(this).css("stroke", "");
+            $(this).css("stroke-width", "");
+          });
+
+          $(mzID).attr("stroke","#A53");
+          $(mzID).attr("stroke-width","2");
+
+        })
+        .append('a')
+        .html(function(d){
+          var text = d.RA_NOME + " : " + d.MACROZONA;
+          return text;
+        });
+}
+
+function generateZoneLists(jsonFile){
+
+      generateInterestList(jsonFile);
+      generateOriginList(jsonFile);
+      generateDestinyList(jsonFile);
+      generateSearchList(jsonFile)
+}
+
+function clearSearch(){
   $("#search").val('');
   $("#search-url li").hide();
   $(this).css('opacity','0');
@@ -435,7 +440,10 @@ $("#clear-search").on("click",function(){
      node.attr("stroke","");
      node.attr("stroke-width","");
   });
+}
 
+$("#clear-search").on("click",function(){
+  clearSearch();
 });
 
 function searchFunction(){
@@ -542,10 +550,6 @@ function draw(topo) {
     //todo modify
     return "rgba(219,220,222,0.5)";
   });
-
-  //offsets for tooltips
-  offsetL = document.getElementById("container").offsetLeft + 20;
-  offsetT = document.getElementById("container").offsetTop + 10;
 
   //tooltips
   country
@@ -1148,19 +1152,12 @@ function tripsRepresentation(jsonFile,colorFunction){
 }
 
 function plotOriginTrips(){
-    clearAll();
+  clearAll();
   lastPlot = "originTrips";
 
-  d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json",
-    function(error, jsonFile) {
-      originOD = jsonFile;
-      tripsRepresentation(originOD,blueColorFunction);
-       $("#container-legend").css('display','flex');
-       $("#top-content").hide();
-    }
-  );
-
+  tripsRepresentation(origemOdJSON,blueColorFunction);
+   $("#container-legend").css('display','flex');
+   $("#top-content").hide();
 }
 
 $("#originTripsBtn").click(function() {
@@ -1171,15 +1168,9 @@ function plotDestinyTrips(){
   clearAll();
   lastPlot = "destinyTrips";
 
-  d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json",
-    function(error, jsonFile) {
-      destinyOD = jsonFile;
-      tripsRepresentation(destinyOD,redColorFunction);
-      $("#container-legend").css('display','flex');
-      $("#top-content").hide();
-    }
-  );
+  tripsRepresentation(destinoOdJSON,redColorFunction);
+  $("#container-legend").css('display','flex');
+  $("#top-content").hide();
 }
 
 $("#destinyTripsBtn").click(function() {
@@ -1188,12 +1179,10 @@ $("#destinyTripsBtn").click(function() {
 
 function plotFlowOD(){
   clearAll();
-  //redraw();
 
   lastPlot = "flowOD";
 
-  d3.json(
-    "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json",
+  d3.json(flowOdJSON,
     function(error, jsonFile) {
 
       var dataFile;
@@ -1287,10 +1276,7 @@ function plotFlowOD(){
                       .data(shortData, function(d){return d})
                       .enter();
 
-      offsetL = document.getElementById("container").offsetLeft + 20;
-      offsetT = document.getElementById("container").offsetTop + 10;
-
-      centroids
+    centroids
         .append("circle")
         .attr("class", "centroid")
         .attr("cx", function(d) {
@@ -1671,9 +1657,6 @@ function arrayOD(originArray, destinyArray, odJson) {
 
 function interestPlot(){
 
-  offsetL = document.getElementById("container").offsetLeft + 20;
-  offsetT = document.getElementById("container").offsetTop + 10;
-
   $( ".centroid" ).remove();
   $( ".line-centroid" ).remove();
 
@@ -1700,7 +1683,7 @@ function interestPlot(){
          }
 
           baseColor = 380;
-          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array_do.json";
+          filePath = zonaOdJSON;
 
         }else{
 
@@ -1713,7 +1696,7 @@ function interestPlot(){
           }
 
           baseColor = 250;
-          filePath = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array.json";
+          filePath = zonaArrayJSON;
         }
 
       if($("#container-legend svg").length){
@@ -1984,7 +1967,6 @@ function interestPlot(){
       }
     });
 
-  //redraw();
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
 
@@ -2022,8 +2004,7 @@ $("#interestBtn").click(function() {
     originArray.join("").split("");
     destinyArray.join("").split("");
 
-    fetchJSONFile(
-      "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/macrozona_od.json",
+    fetchJSONFile(macrozonaOdJSON,
       function(data) {
         var matOD = [];
         matOD = arrayOD(originArray, destinyArray, data);
@@ -2178,7 +2159,6 @@ $("#destino-block").on("click", function(){
      $("#selectedBtn").css("opacity", "0.3");
   };
 });
-
 
 $("#origem-todos").on("change", function(){
 
