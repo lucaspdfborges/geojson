@@ -1,3 +1,39 @@
+
+/*
+  Constants
+*/
+
+// Rectangle legends
+const rectColors = ["hsla(0, 20%, 50%,0.4)","hsla(120, 20%, 50%,0.4)","hsla(240, 20%, 50%,0.4)"];
+
+const rectColorsText = ["hsla(0, 20%, 20%, 1)","hsla(120, 20%, 20%, 1)","hsla(240, 20%, 20%, 1)"];
+const rectText = ["COLETIVO","INDIVIDUAL"];
+
+const listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(220, 30%, 60%, 0.95)", "hsla(170, 30%, 60%, 0.95)"],["hsla(230, 35%, 55%, 0.95)", "hsla(310, 35%, 55%, 0.95)"],["#FFF", "#DDD"]]
+
+// Paths for json files
+const areaVerdeURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json"
+const manchaUrbanaURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mancha.json"
+const eixosViariosURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/eixo.json"
+const zonasURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mczona.json"
+const lagosURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json"
+const origemOdURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json"
+const destinoOdURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json"
+const nomeIdZonaCenterURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/NOME_ID_MCZ_CENTER_name_sorted.json"
+const flowOdURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json"
+const zonaOdURL =  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array_do.json"
+const zonaArrayURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array.json"
+const macrozonaOdURL = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/macrozona_od.json"
+
+const mapCenter = [-47.797089, -15.77526];
+
+const offsetL =  20;
+const offsetT =  10;
+
+/*
+  Variables
+*/
+
 var zoom = d3.behavior
 .zoom()
 .scaleExtent([1, 20])
@@ -13,29 +49,6 @@ var scaleResize = 1;
 var currentZoom = 1;
 // Origin or Destiny selector
 var mouseSelectorOD = "origin";
-
-// Rectangle legends
-const rectColors = ["hsla(0, 20%, 50%,0.4)","hsla(120, 20%, 50%,0.4)","hsla(240, 20%, 50%,0.4)"];
-const rectColorsText = ["hsla(0, 20%, 20%, 1)","hsla(120, 20%, 20%, 1)","hsla(240, 20%, 20%, 1)"];
-const rectText = ["COLETIVO","INDIVIDUAL"];
-
-// Paths for json files
-const areaVerdeJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/area_verde.json"
-const manchaUrbanaJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mancha.json"
-const eixosViariosJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/eixo.json"
-const zonasJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mczona.json"
-const lagosJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/lagos.json"
-const origemOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/originOD.json"
-const destinoOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/destinyOD.json"
-const nomeIdZonaCenterJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/NOME_ID_MCZ_CENTER_name_sorted.json"
-const flowOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/flow_od.json"
-const zonaOdJSON =  "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array_do.json"
-const zonaArrayJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/mz_array.json"
-const macrozonaOdJSON = "https://raw.githubusercontent.com/lucaspdfborges/geojson/master/support/macrozona_od.json"
-
-const mapCenter = [-47.797089, -15.77526];
-
-var listColors = [["hsla(340, 35%, 55%, 0.95)", "hsla(380, 35%, 55%, 0.95)"],["hsla(220, 30%, 60%, 0.95)", "hsla(170, 30%, 60%, 0.95)"],["hsla(230, 35%, 55%, 0.95)", "hsla(310, 35%, 55%, 0.95)"],["#FFF", "#DDD"]]
 
 var gradientsArray = [];
 
@@ -55,9 +68,7 @@ g,
 legendSVGright,
 legendSVGleft,
 gLegend,
-defs,
-offsetL,
-offsetT;
+defs;
 
 var graticule = d3.geo.graticule();
 
@@ -78,10 +89,9 @@ var tooltipNum = tooltip
                 .append("p")
                 .attr("class","tooltipNum");
 
-offsetL =  20;
-offsetT =  10;
-
-setup(width, height);
+/*
+  Functions
+*/
 
 function setup(width, height) {
 
@@ -119,6 +129,7 @@ function focusArea(width, height, lnCenter) {
   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 }
 
+
 function setupGradients(listColors){
 
   //listColors is an array like: [[initial_color_1, final_color_1], [initial_color_2, final_color_2], . . . ]
@@ -152,19 +163,6 @@ function setupGradients(listColors){
   }
 }
 
-setupGradients(listColors);
-
-d3.queue(2)
-    .defer(d3.json, areaVerdeJSON)
-    .defer(d3.json, manchaUrbanaJSON)
-    .defer(d3.json, eixosViariosJSON)
-    .defer(d3.json, zonasJSON)
-    .defer(d3.json, lagosJSON)
-    .defer(d3.json, origemOdJSON)
-    .defer(d3.json, destinoOdJSON)
-    .defer(d3.json, nomeIdZonaCenterJSON)
-    .awaitAll(loadedJSONs);
-
 function loadedJSONs(error, results){
    if (error) throw error;
 
@@ -184,6 +182,7 @@ function loadedJSONs(error, results){
    lagos(lagosTopo);
    generateZoneLists(nomeIdZonaCenter);
 }
+
 
 function selectAsZone(node){
 
@@ -446,9 +445,6 @@ function clearSearch(){
   });
 }
 
-$("#clear-search").on("click",function(){
-  clearSearch();
-});
 
 function searchFunction(){
   var input, filter, ul, li, a, i, txtValue;
@@ -712,9 +708,6 @@ function centerMap(){
 
 }
 
-$("#centerMap").on("click", function(){
-  centerMap();
-});
 
 function move() {
 
@@ -794,17 +787,7 @@ function addpoint(longitude, latitude, text) {
   }
 }
 
-(function($) {
-  $.fn.goTo = function() {
-    $("html, body").animate(
-      {
-        scrollTop: $(this).offset().top + "px"
-      },
-      "fast"
-    );
-    return this; // for chaining...
-  };
-})(jQuery);
+
 
 function fetchJSONFile(path, callback) {
   var httpRequest = new XMLHttpRequest();
@@ -1155,7 +1138,7 @@ function plotOriginTrips(){
   clearAll();
   lastPlot = "originTrips";
 
-  tripsRepresentation(origemOdJSON,blueColorFunction);
+  tripsRepresentation(originOD, blueColorFunction);
    $("#container-legend").css('display','flex');
    $("#top-content").hide();
 }
@@ -1168,7 +1151,7 @@ function plotDestinyTrips(){
   clearAll();
   lastPlot = "destinyTrips";
 
-  tripsRepresentation(destinoOdJSON,redColorFunction);
+  tripsRepresentation(destinyOD,redColorFunction);
   $("#container-legend").css('display','flex');
   $("#top-content").hide();
 }
@@ -1178,11 +1161,12 @@ $("#destinyTripsBtn").click(function() {
 });
 
 function plotFlowOD(){
+
   clearAll();
 
   lastPlot = "flowOD";
 
-  d3.json(flowOdJSON,
+  d3.json(flowOdURL,
     function(error, jsonFile) {
 
       var dataFile;
@@ -1489,36 +1473,6 @@ function plotFlowOD(){
   $("#top-content").hide();
 }
 
-$("#flowODBtn").click(function() {
-    plotFlowOD();
-});
-
-$("#selectAllBtn").click(function() {
-  $(".macrozona").each(function() {
-    if (
-       document.getElementById("inputDestino").checked &&
-      !document.getElementById("inputOrigem").checked
-    ) {
-      $(this).css("fill", "url(#svgGradient1)");
-      $(this).attr("od", 1);
-      $(this).attr("clicked", 1);
-    } else if (
-      !document.getElementById("inputDestino").checked &&
-      document.getElementById("inputOrigem").checked
-    ) {
-      $(this).css("fill", "url(#svgGradient2)");
-      $(this).attr("od", 2);
-      $(this).attr("clicked", 1);
-    } else if (
-      document.getElementById("inputDestino").checked &&
-      document.getElementById("inputOrigem").checked
-    ) {
-      $(this).css("fill", "url(#svgGradient3)");
-      $(this).attr("od", 3);
-      $(this).attr("clicked", 1);
-    }
-  });
-});
 
 function clearAll(){
 
@@ -1564,15 +1518,9 @@ function clearAll(){
   });
 
   lastPlot = "none";
-
 }
 
-$(".resetBtn").click(function() {
-  //code before the pause
-    clearAll();
-});
-
-$("#downloadOD").click(function() {
+function downloadOD(){
   const rows = matODdownload;
 
   let csvContent = "data:text/csv;charset=utf-8,";
@@ -1589,7 +1537,8 @@ $("#downloadOD").click(function() {
   document.body.appendChild(link); // Required for FF
 
   link.click();
-});
+}
+
 
 function arrayOD(originArray, destinyArray, odJson) {
   matODdownload = [];
@@ -1683,7 +1632,7 @@ function interestPlot(){
          }
 
           baseColor = 380;
-          filePath = zonaOdJSON;
+          filePath = zonaOdURL;
 
         }else{
 
@@ -1696,7 +1645,7 @@ function interestPlot(){
           }
 
           baseColor = 250;
-          filePath = zonaArrayJSON;
+          filePath = zonaArrayURL;
         }
 
       if($("#container-legend svg").length){
@@ -1973,78 +1922,74 @@ function interestPlot(){
   lastPlot = "interest";
 }
 
-$("#interestBtn").click(function() {
-     interestPlot();
-});
 
-  $("#selectedBtn").click(function() {
-    if ($("table").length != 0) {
-      $("table").remove();
-    }
+function plotMatrix(){
+  if ($("table").length != 0) {
+    $("table").remove();
+  }
 
-    let selectedArray = [];
-    let originArray = [];
-    let destinyArray = [];
+  let selectedArray = [];
+  let originArray = [];
+  let destinyArray = [];
 
-    $(".macrozona").each(function() {
-      var id = $(this).attr("macrozona");
-      var node = d3.select(this);
+  $(".macrozona").each(function() {
+    var id = $(this).attr("macrozona");
+    var node = d3.select(this);
 
-        if (node.attr("isOrigin")>0) {
-          selectedArray.push(id);
-          originArray.push(id);
-        };
+      if (node.attr("isOrigin")>0) {
+        selectedArray.push(id);
+        originArray.push(id);
+      };
 
-        if(node.attr("isDestiny")>0) {
-          selectedArray.push(id);
-          destinyArray.push(id);
-        };
-    });
-
-    originArray.join("").split("");
-    destinyArray.join("").split("");
-
-    fetchJSONFile(macrozonaOdJSON,
-      function(data) {
-        var matOD = [];
-        matOD = arrayOD(originArray, destinyArray, data);
-        createOD(matOD);
-        $("#results").goTo();
-      }
-    );
+      if(node.attr("isDestiny")>0) {
+        selectedArray.push(id);
+        destinyArray.push(id);
+      };
   });
 
-  function turnBoxOn(idString){
-    $('#'+idString).height('inherit');
-    $("#"+idString+" :button").attr("disabled", false);
-    $("#"+idString+" :input").attr("disabled", false);
-    $("#"+idString).addClass('grid-container').removeClass('grid-container-blocked');
+  originArray.join("").split("");
+  destinyArray.join("").split("");
 
-    $('#'+idString+" div.container-block").first().fadeTo(200, 1.0);
-    $('#'+idString+" div.container-block").first().show();
-    $('#'+idString+" div.container-title h3").first().css("color","#2a2559");
-    $('#'+idString+" div.container-title").first().css("background","repeating-linear-gradient(45deg,#e6e4ec,#e6e4ec 10px,#f5f5f5 10px,#f5f5f5 20px)");
+  fetchJSONFile(macrozonaOdURL,
+    function(data) {
+      var matOD = [];
+      matOD = arrayOD(originArray, destinyArray, data);
+      createOD(matOD);
+      $("#results").goTo();
+    }
+  );
+}
 
-  }
+function turnBoxOn(idString){
+  $('#'+idString).height('inherit');
+  $("#"+idString+" :button").attr("disabled", false);
+  $("#"+idString+" :input").attr("disabled", false);
+  $("#"+idString).addClass('grid-container').removeClass('grid-container-blocked');
 
-  function turnBoxOff(idString){
-    $('#'+idString).height('3.5em');
-    $("#"+idString+" :button").attr("disabled", true);
-    $("#"+idString+" :input").attr("disabled", true);
-    $("#"+idString).addClass('grid-container-blocked').removeClass('grid-container');
-    $('#'+idString+" div.container-title h3").first().css("color","#7b7887");
-    $('#'+idString+" div.container-title").first().css("background","#fff");
-    $('#'+idString+" div.container-block").each(function(){
-      $(this).hide();
-    });
-    $('#'+idString+" input").each(function(){
-      $(this).prop( "checked", false );
-    });
-  }
+  $('#'+idString+" div.container-block").first().fadeTo(200, 1.0);
+  $('#'+idString+" div.container-block").first().show();
+  $('#'+idString+" div.container-title h3").first().css("color","#2a2559");
+  $('#'+idString+" div.container-title").first().css("background","repeating-linear-gradient(45deg,#e6e4ec,#e6e4ec 10px,#f5f5f5 10px,#f5f5f5 20px)");
+}
 
-$(".container-title").on("click",function(){
+function turnBoxOff(idString){
+  $('#'+idString).height('3.5em');
+  $("#"+idString+" :button").attr("disabled", true);
+  $("#"+idString+" :input").attr("disabled", true);
+  $("#"+idString).addClass('grid-container-blocked').removeClass('grid-container');
+  $('#'+idString+" div.container-title h3").first().css("color","#7b7887");
+  $('#'+idString+" div.container-title").first().css("background","#fff");
+  $('#'+idString+" div.container-block").each(function(){
+    $(this).hide();
+  });
+  $('#'+idString+" input").each(function(){
+    $(this).prop( "checked", false );
+  });
+}
+
+function containerTitleClick(element){
   //Turning off all active boxes
-  var isOn = $(this).parent().attr("class") == "grid-container-blocked";
+  var isOn = element.parent().attr("class") == "grid-container-blocked";
   var boxesOn = $(".grid-container");
   for(var i = 0; i < boxesOn.length; i++){
       var boxID = boxesOn.attr('id');
@@ -2052,7 +1997,7 @@ $(".container-title").on("click",function(){
   }
 
   //Turning On/Off the clicked box
-  var thisBoxID = $(this).parent().attr('id');
+  var thisBoxID = element.parent().attr('id');
   if(isOn){
     turnBoxOn(thisBoxID);
   }else{
@@ -2060,23 +2005,12 @@ $(".container-title").on("click",function(){
   }
 
   clearAll();
+}
 
-});
+function containerInputClick(element){
+  var thisBlock = element.closest(".container-block");
 
-  document.querySelector(".table-scroll").addEventListener("scroll", function(e) {
-    this.querySelector(".thead-col").style.left = this.scrollLeft + "px";
-    this.querySelector(".thead-row").style.top = this.scrollTop + "px";
-    this.querySelector(".thead-corner").style.top = this.scrollTop + "px";
-    this.querySelector(".thead-corner").style.left = this.scrollLeft + "px";
-  });
-
-//container blocks
-
-$(".container-block").find("input").on("click", function(){
-
-  var thisBlock = $(this).closest(".container-block");
-
- if($(this).is(":checked")){
+ if(element.is(":checked")){
   thisBlock.css("border-left","2px solid #e6e4ec");
  }
 
@@ -2084,36 +2018,28 @@ $(".container-block").find("input").on("click", function(){
 
   nextBlock.fadeTo(200, 1.0);
   nextBlock.show();
-});
+}
 
-  //Download SVG
+//Download SVG
+function saveSvg(svgEl, name) {
+  svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  var svgData = svgEl.outerHTML;
+  var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+  var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+  var svgUrl = URL.createObjectURL(svgBlob);
+  var downloadLink = document.createElement("a");
+  downloadLink.href = svgUrl;
+  downloadLink.download = name;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
 
-  function saveSvg(svgEl, name) {
-    svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    var svgData = svgEl.outerHTML;
-    var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-    var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
-    var svgUrl = URL.createObjectURL(svgBlob);
-    var downloadLink = document.createElement("a");
-    downloadLink.href = svgUrl;
-    downloadLink.download = name;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  }
-
-  $("#downloadSvg").on("click",function(){
-    var svgEl = document.getElementById("svgChart");
-    saveSvg(svgEl, "mapa.svg");
-  });
-
-  // Mobile corrections
-$("#heatMapBtn").change(function(){
-
+function heatMapPlot(element){
   var matOD = [];
   var max = 0;
 
-    if ($(this).is(":checked")){
+    if (element.is(":checked")){
 
       $("td").each(function(){
         var value = $(this).find("div").first().html();
@@ -2134,17 +2060,17 @@ $("#heatMapBtn").change(function(){
             $(this).find("div").first().css("background-color", color);
           });
     }
-});
+}
 
-$("#origem-block").on("click", function(){
+function originBlockClick(){
   mouseSelectorOD = "origin";
   $(this).find("h4").css("color","#167");
   $(this).css("background-image","linear-gradient( rgba(100,250,250,0.1), rgba(255, 255, 255,0))");
   $("#destino-block").css("background-image","none");
   $("#destino-block").find("h4").css("color","#2a2559");
-});
+}
 
-$("#destino-block").on("click", function(){
+function destinyBlockClick(){
   mouseSelectorOD = "destiny";
   $("#origem-block").css("background-image","none");
   $("#origem-block").find("h4").css("color","#2a2559");
@@ -2155,123 +2081,44 @@ $("#destino-block").on("click", function(){
     $("#selectedBtn").attr("disabled", false);
     $("#selectedBtn").css("opacity", "1.0");
   }else{
-     $("#selectedBtn").attr("disabled", true);
-     $("#selectedBtn").css("opacity", "0.3");
+    $("#selectedBtn").attr("disabled", true);
+    $("#selectedBtn").css("opacity", "0.3");
   };
-});
+}
 
-$("#origem-todos").on("change", function(){
+function selectAllAsOrigin(thisElement){
 
-  if($(this).is(":checked")){
+  thisElement.parent("li").siblings().each(function(index, element){
+    var newState = thisElement.is(":checked");
+    $(element).find("input").prop("checked", newState);
+ });
 
-     $(this).parent("li").siblings().each(function(index, element){
-       $(element).find("input").prop("checked", true);
-    });
+  $(".macrozona").each(function(){
+    var node = d3.select("#"+$(this).attr("id"));
+    selectAsOrigin(node);
+  });
+}
 
-    $(".macrozona").each(function(){
-      var node = d3.select("#"+$(this).attr("id"));
-      node.attr("isOrigin", 1);
+function selectAllAsDestiny(thisElement){
 
-      let isDestiny = node.attr("isDestiny")>0;
-      let isOrigin =  node.attr("isOrigin")>0;
+  thisElement.parent("li").siblings().each(function(index, element){
+    var newState = thisElement.is(":checked");
+    $(element).find("input").prop("checked", newState);
+ });
 
-        if(isDestiny && !isOrigin){
-          node.style("fill", "url(#svgGradient1)");
-        }else if(!isDestiny && isOrigin){
-          node.style("fill", "url(#svgGradient2)");
-        } else if(isDestiny && isOrigin){
-           node.style("fill", "url(#svgGradient3)");
-        } else{
-          node.style("fill", "rgba(219,220,222,0.5)");
-        }
-    });
+  $(".macrozona").each(function(){
+    var node = d3.select("#"+$(this).attr("id"));
+    selectAsDestiny(node);
+  });
+}
 
-  }else{
-     $(this).parent("li").siblings().each(function(index, element){
-       $(element).find("input").prop("checked", false);
-    });
-
-    $(".macrozona").each(function(){
-      var node = d3.select("#"+$(this).attr("id"));
-      node.attr("isOrigin", 0);
-
-       let isDestiny = node.attr("isDestiny")>0;
-      let isOrigin =   node.attr("isOrigin")>0;
-
-        if(isDestiny && !isOrigin){
-          node.style("fill", "url(#svgGradient1)");
-        }else if(!isDestiny && isOrigin){
-          node.style("fill", "url(#svgGradient2)");
-        } else if(isDestiny && isOrigin){
-           node.style("fill", "url(#svgGradient3)");
-        } else{
-          node.style("fill", "rgba(219,220,222,0.5)");
-        }
-    });
-  }
-});
-
-
-$("#destino-todos").on("change", function(){
-
-  if($(this).is(":checked")){
-
-     $(this).parent("li").siblings().each(function(index, element){
-       $(element).find("input").prop("checked", true);
-    });
-
-    $(".macrozona").each(function(){
-      var node = d3.select("#"+$(this).attr("id"));
-      node.attr("isDestiny", 1);
-
-      let isDestiny = node.attr("isDestiny")>0;
-      let isOrigin =   node.attr("isOrigin")>0;
-
-        if(isDestiny && !isOrigin){
-          node.style("fill", "url(#svgGradient1)");
-        }else if(!isDestiny && isOrigin){
-          node.style("fill", "url(#svgGradient2)");
-        } else if(isDestiny && isOrigin){
-           node.style("fill", "url(#svgGradient3)");
-        } else{
-          node.style("fill", "rgba(219,220,222,0.5)");
-        }
-    });
-
-  }else{
-     $(this).parent("li").siblings().each(function(index, element){
-       $(element).find("input").prop("checked", false);
-    });
-
-    $(".macrozona").each(function(){
-      var node = d3.select("#"+$(this).attr("id"));
-      node.attr("isDestiny", 0);
-
-      let isDestiny = node.attr("isDestiny")>0;
-      let isOrigin =   node.attr("isOrigin")>0;
-
-        if(isDestiny && !isOrigin){
-          node.style("fill", "url(#svgGradient1)");
-        }else if(!isDestiny && isOrigin){
-          node.style("fill", "url(#svgGradient2)");
-        } else if(isDestiny && isOrigin){
-           node.style("fill", "url(#svgGradient3)");
-        } else{
-          node.style("fill", "rgba(219,220,222,0.5)");
-        }
-    });
-  }
-});
-
-$(".scroll-pad-left").first().height($("#container").height());
-$(".scroll-pad-right").first().height($("#container").height());
 
 function scrollToLi(elementID) {
   var elmnt = document.getElementById(elementID);
   elmnt.scrollIntoView({ block: 'end', behavior: 'smooth' });
 }
 
-$("#indicadoresBox input").on("change",function(){
+function indicadoresInputClick(){
   if(lastPlot=="originTrips"){
     plotOriginTrips();
   } else if (lastPlot=="destinyTrips"){
@@ -2279,9 +2126,9 @@ $("#indicadoresBox input").on("change",function(){
   } else if (lastPlot=="flowOD"){
     plotFlowOD();
   }
-});
+}
 
-$("#interesseBox input").on("change",function(){
+function interesseInputClick(){
   if(lastPlot=="interest"){
 
     var node = d3.select(lastZone);
@@ -2291,7 +2138,7 @@ $("#interesseBox input").on("change",function(){
 
     $(inputID).prop( "checked", true );
   }
-});
+}
 
 function responsivefy(svg) {
 
@@ -2319,3 +2166,115 @@ function responsivefy(svg) {
   }
 
 }
+
+/*
+  DOM Manipulation
+*/
+
+setup(width, height);
+
+setupGradients(listColors);
+
+d3.queue(2)
+    .defer(d3.json, areaVerdeURL)
+    .defer(d3.json, manchaUrbanaURL)
+    .defer(d3.json, eixosViariosURL)
+    .defer(d3.json, zonasURL)
+    .defer(d3.json, lagosURL)
+    .defer(d3.json, origemOdURL)
+    .defer(d3.json, destinoOdURL)
+    .defer(d3.json, nomeIdZonaCenterURL)
+    .awaitAll(loadedJSONs);
+
+$("#clear-search").on("click",function(){
+  clearSearch();
+});
+
+$("#centerMap").on("click", function(){
+  centerMap();
+});
+
+(function($) {
+  $.fn.goTo = function() {
+    $("html, body").animate(
+      {
+        scrollTop: $(this).offset().top + "px"
+      },
+      "fast"
+    );
+    return this; // for chaining...
+  };
+})(jQuery);
+
+$("#flowODBtn").click(function() {
+  plotFlowOD();
+});
+
+$(".resetBtn").click(function() {
+  clearAll();
+});
+
+$("#downloadOD").click(function() {
+  downloadOD();
+});
+
+$("#interestBtn").click(function() {
+  interestPlot();
+});
+
+$("#selectedBtn").click(function() {
+  plotMatrix();
+});
+
+$(".container-title").on("click",function(){
+    containerTitleClick($(this));
+});
+
+document.querySelector(".table-scroll").addEventListener("scroll", function(e) {
+  this.querySelector(".thead-col").style.left = this.scrollLeft + "px";
+  this.querySelector(".thead-row").style.top = this.scrollTop + "px";
+  this.querySelector(".thead-corner").style.top = this.scrollTop + "px";
+  this.querySelector(".thead-corner").style.left = this.scrollLeft + "px";
+});
+
+//container blocks
+
+$(".container-block").find("input").on("click", function(){
+  containerInputClick($(this));
+});
+
+$("#downloadSvg").on("click",function(){
+  var svgEl = document.getElementById("svgChart");
+  saveSvg(svgEl, "mapa.svg");
+});
+
+$("#heatMapBtn").change(function(){
+  heatMapPlot($(this));
+});
+
+$("#origem-block").on("click", function(){
+  originBlockClick();
+});
+
+$("#destino-block").on("click", function(){
+  destinyBlockClick();
+});
+
+$("#origem-todos").on("change", function(){
+  selectAllAsOrigin($(this));
+});
+
+$("#destino-todos").on("change", function(){
+    selectAllAsDestiny($(this));
+});
+
+$(".scroll-pad-left").first().height($("#container").height());
+$(".scroll-pad-right").first().height($("#container").height());
+
+$("#indicadoresBox input").on("change",function(){
+  indicadoresInputClick();
+});
+
+$("#interesseBox input").on("change",function(){
+  interesseInputClick();
+});
