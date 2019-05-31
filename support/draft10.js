@@ -1,4 +1,4 @@
-const mz = require('./RA_NOME_ID.json');
+const mz = require('./NOME_ID_MCZ_CENTER.json');
 const fs = require('fs');
 
 const mzData = mz.data;
@@ -6,7 +6,7 @@ finalObj ={};
 
 for( element in mzData){
   var ra = mzData[element].RA_NOME;
-  var id = mzData[element].ID;
+  var id = mzData[element].MACROZONA;
   console.log(ra," : ",id);
   finalObj[id] = ra;
 
